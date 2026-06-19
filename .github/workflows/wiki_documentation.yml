@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: glu
           fetch-depth: 0
@@ -25,7 +25,7 @@ jobs:
           debug: 'false'
 
       - name: Checkout wiki repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: gesslar/glu.wiki
           ref: master
