@@ -1,6 +1,0 @@
-{
-  "Lua.runtime.version": "Lua 5.1",
-  "editor.tabSize": 2,
-  "editor.indentSize": "tabSize",
-  "Lua.diagnostics.enable": false
-}

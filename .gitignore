@@ -5,3 +5,4 @@ node_modules/
 /tmp/busted-tests-failed
 test/mudlet/
 work/
+.vscode/settings.json
