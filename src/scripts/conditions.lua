@@ -4,10 +4,10 @@ local ConditionsClass = Glu.glass.register({
   dependencies = {},
   setup = function(___, self)
     --- Checks if a condition is true or false.
-    --- @param condition boolean - The condition to check
-    --- @param message string|nil - The message to return if the condition is false
-    --- @return boolean - The condition
-    --- @return string|nil - The message
+    ---@param condition boolean The condition to check
+    ---@param message string|nil The message to return if the condition is false
+    ---@returns boolean The condition
+    ---@returns string|nil The message
     function self.is(condition, message)
       assert(type(condition) == "boolean", "Expected a boolean as the first argument")
       assert(type(message) == "string" or message == nil, "Expected a string or nil as the second argument")
@@ -21,47 +21,47 @@ local ConditionsClass = Glu.glass.register({
     end
 
     --- Checks if a condition is true.
-    --- @param condition boolean - The condition to check
-    --- @param message string|nil - The message to return if the condition is false
-    --- @return boolean - The condition
-    --- @return string|nil - The message
+    ---@param condition boolean The condition to check
+    ---@param message string|nil The message to return if the condition is false
+    ---@returns boolean The condition
+    ---@returns string|nil The message
     function self.is_true(condition, message)
       return self.is(condition, message or "Expected condition to be true")
     end
 
     --- Checks if a condition is false.
-    --- @param condition boolean - The condition to check
-    --- @param message string|nil - The message to return if the condition is true
-    --- @return boolean - The condition
-    --- @return string|nil - The message
+    ---@param condition boolean The condition to check
+    ---@param message string|nil The message to return if the condition is true
+    ---@returns boolean The condition
+    ---@returns string|nil The message
     function self.is_false(condition, message)
       return self.is(not condition, message or "Expected condition to be false")
     end
 
     --- Checks if a value is nil.
-    --- @param value any - The value to check
-    --- @param message string|nil - The message to return if the value is not nil
-    --- @return boolean - The condition
-    --- @return string|nil - The message
+    ---@param value any The value to check
+    ---@param message string|nil The message to return if the value is not nil
+    ---@returns boolean The condition
+    ---@returns string|nil The message
     function self.is_nil(value, message)
       return self.is(value == nil, message or "Expected `{value}` to be nil")
     end
 
     --- Checks if a value is not nil.
-    --- @param value any - The value to check
-    --- @param message string|nil - The message to return if the value is nil
-    --- @return boolean - The condition
-    --- @return string|nil - The message
+    ---@param value any The value to check
+    ---@param message string|nil The message to return if the value is nil
+    ---@returns boolean The condition
+    ---@returns string|nil The message
     function self.is_not_nil(value, message)
       return self.is(value ~= nil, message or "Expected `{value}` to not be nil")
     end
 
     --- Checks if a function throws an error.
-    --- @param func function - The function to check
-    --- @param message string|nil - The message to return if the function does not throw an error
-    --- @param check function|nil - The function to check the error message against
-    --- @return boolean - The condition
-    --- @return string|nil - The message
+    ---@param func function The function to check
+    ---@param message string|nil The message to return if the function does not throw an error
+    ---@param check function|nil The function to check the error message against
+    ---@returns boolean The condition
+    ---@returns string|nil The message
     function self.is_error(func, message, check)
       assert(type(func) == "function", "Expected a function as the first argument")
       assert(type(message) == "string" or message == nil, "Expected a string or nil as the second argument")
@@ -89,86 +89,86 @@ local ConditionsClass = Glu.glass.register({
     end
 
     --- Checks if two values are equal.
-    --- @param a any - The first value to check
-    --- @param b any - The second value to check
-    --- @param message string|nil - The message to return if the values are not equal
-    --- @return boolean - The condition
-    --- @return string|nil - The message
+    ---@param a any The first value to check
+    ---@param b any The second value to check
+    ---@param message string|nil The message to return if the values are not equal
+    ---@returns boolean The condition
+    ---@returns string|nil The message
     function self.is_eq(a, b, message)
       return self.is(a == b,
         message or f "Expected `{a}` to equal `{b}`\n")
     end
 
     --- Checks if two values are not equal.
-    --- @param a any - The first value to check
-    --- @param b any - The second value to check
-    --- @param message string|nil - The message to return if the values are equal
-    --- @return boolean - The condition
-    --- @return string|nil - The message
+    ---@param a any The first value to check
+    ---@param b any The second value to check
+    ---@param message string|nil The message to return if the values are equal
+    ---@returns boolean The condition
+    ---@returns string|nil The message
     function self.is_ne(a, b, message)
       return self.is(a ~= b,
         message or f "Expected `{a}` to not equal `{b}`\n")
     end
 
     --- Checks if a value is less than another value.
-    --- @param a any - The first value to check
-    --- @param b any - The second value to check
-    --- @param message string|nil - The message to return if the values are not less than
-    --- @return boolean - The condition
-    --- @return string|nil - The message
+    ---@param a any The first value to check
+    ---@param b any The second value to check
+    ---@param message string|nil The message to return if the values are not less than
+    ---@returns boolean The condition
+    ---@returns string|nil The message
     function self.is_lt(a, b, message)
       return self.is(a < b,
         message or f "Expected `{a}` to be less than `{b}`\n")
     end
 
     --- Checks if a value is less than or equal to another value.
-    --- @param a any - The first value to check
-    --- @param b any - The second value to check
-    --- @param message string|nil - The message to return if the values are not less than or equal to
-    --- @return boolean - The condition
-    --- @return string|nil - The message
+    ---@param a any The first value to check
+    ---@param b any The second value to check
+    ---@param message string|nil The message to return if the values are not less than or equal to
+    ---@returns boolean The condition
+    ---@returns string|nil The message
     function self.is_le(a, b, message)
       return self.is(a <= b,
         message or f "Expected `{a}` to be less than or equal to `{b}`\n")
     end
 
     --- Checks if a value is greater than another value.
-    --- @param a any - The first value to check
-    --- @param b any - The second value to check
-    --- @param message string|nil - The message to return if the values are not greater than
-    --- @return boolean - The condition
-    --- @return string|nil - The message
+    ---@param a any The first value to check
+    ---@param b any The second value to check
+    ---@param message string|nil The message to return if the values are not greater than
+    ---@returns boolean The condition
+    ---@returns string|nil The message
     function self.is_gt(a, b, message)
       return self.is(a > b,
         message or f "Expected `{a}` to be greater than `{b}`\n")
     end
 
     --- Checks if a value is greater than or equal to another value.
-    --- @param a any - The first value to check
-    --- @param b any - The second value to check
-    --- @param message string|nil - The message to return if the values are not greater than or equal to
-    --- @return boolean - The condition
-    --- @return string|nil - The message
+    ---@param a any The first value to check
+    ---@param b any The second value to check
+    ---@param message string|nil The message to return if the values are not greater than or equal to
+    ---@returns boolean The condition
+    ---@returns string|nil The message
     function self.is_ge(a, b, message)
       return self.is(a >= b, message or f "Expected `{a}` to be greater than or equal to `{b}`\n")
     end
 
     --- Checks if a value is of a specific type.
-    --- @param value any - The value to check
-    --- @param type string - The type to check against
-    --- @param message string|nil - The message to return if the values are not of the specified type
-    --- @return boolean - The condition
-    --- @return string|nil - The message
+    ---@param value any The value to check
+    ---@param type string The type to check against
+    ---@param message string|nil The message to return if the values are not of the specified type
+    ---@returns boolean The condition
+    ---@returns string|nil The message
     function self.is_type(value, expected_type, message)
       return self.is(type(value) == expected_type, message or f "Expected `{value}` to be of type `{expected_type}`\n")
     end
 
     --- Checks if two values are deeply equal.
-    --- @param a any - The first value to check
-    --- @param b any - The second value to check
-    --- @param message string|nil - The message to return if the values are not deeply equal
-    --- @return boolean - The condition
-    --- @return string|nil - The message
+    ---@param a any The first value to check
+    ---@param b any The second value to check
+    ---@param message string|nil The message to return if the values are not deeply equal
+    ---@returns boolean The condition
+    ---@returns string|nil The message
     function self.is_deeply(a, b, message)
       local result, mess
 

@@ -18,16 +18,16 @@ local ColourClass = Glu.glass.register({
     --- - ease_in
     --- - ease_out
     ---
-    --- @example
+    ---@example
     --- ```lua
     --- colour.interpolate({255, 0, 0}, {0, 0, 255}, 50)
     --- -- {127, 0, 127}
     --- ```
-    --- @param rgb1 table - The first RGB colour as a table with three elements: red, green, and blue.
-    --- @param rgb2 table - The second RGB colour as a table with three elements: red, green, and blue.
-    --- @param factor number - The step value between 0 and 1.
-    --- @param method string - The interpolation method to use. (Optional, defaults to "smooth")
-    --- @return table - The interpolated RGB colour as a table with three elements: red, green, and blue.
+    ---@param rgb1 table The first RGB colour as a table with three elements: red, green, and blue.
+    ---@param rgb2 table The second RGB colour as a table with three elements: red, green, and blue.
+    ---@param factor number The step value between 0 and 1.
+    ---@param method string The interpolation method to use. (Optional, defaults to "smooth")
+    ---@returns table The interpolated RGB colour as a table with three elements: red, green, and blue.
     function self.interpolate(rgb1, rgb2, factor, method)
       ___.v.rgb_table(rgb1, 1, false)
       ___.v.rgb_table(rgb2, 2, false)
@@ -73,6 +73,15 @@ local ColourClass = Glu.glass.register({
       return self.hsl_to_rgb({ h, s, l })
     end
 
+    --- Converts an RGB colour to HSL.
+    --- Returns hue in degrees (0-360) and saturation and lightness as percentages (0-100).
+    ---
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@returns table The HSL colour as a table with three elements: hue, saturation, and lightness.
+    ---@example
+    --- ```lua
+    --- colour.rgb_to_hsl({255, 0, 0})
+    --- ```
     function self.rgb_to_hsl(rgb)
       ___.v.rgb_table(rgb, 1, false)
 
@@ -104,11 +113,11 @@ local ColourClass = Glu.glass.register({
     end
 
     --- Converts an RGB colour to a hex string.
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @param background table - An optional background RGB colour as a table with three elements: red, green, and blue.
-    --- @return string - The hex string.
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@param background table An optional background RGB colour as a table with three elements: red, green, and blue.
+    ---@returns string The hex string.
     ---
-    --- @example
+    ---@example
     --- ```lua
     --- colour.to_hex({255, 255, 255})
     --- -- "#ffffff"
@@ -135,10 +144,10 @@ local ColourClass = Glu.glass.register({
     end
 
     --- Converts an HSL colour to an RGB colour.
-    --- @param hsl table - The HSL colour as a table with three elements: hue, saturation, and lightness.
-    --- @return table - The RGB colour as a table with three elements: red, green, and blue.
+    ---@param hsl table The HSL colour as a table with three elements: hue, saturation, and lightness.
+    ---@returns table The RGB colour as a table with three elements: red, green, and blue.
     ---
-    --- @example
+    ---@example
     --- ```lua
     --- colour.hsl_to_rgb({180, 50, 50})
     --- -- {127, 127, 127}
@@ -179,10 +188,10 @@ local ColourClass = Glu.glass.register({
     end
 
     --- Determines if a colour is a light colour.
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @return boolean - True if the colour is light, false otherwise.
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@returns boolean True if the colour is light, false otherwise.
     ---
-    --- @example
+    ---@example
     --- ```lua
     --- colour.is_light({255, 255, 255})
     --- -- true
@@ -198,10 +207,10 @@ local ColourClass = Glu.glass.register({
     end
 
     --- Lightens or darkens a colour by a given amount.
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @param amount number - The amount to adjust the colour by.
-    --- @param lighten boolean - Whether to lighten (true) or darken (false) the colour.
-    --- @return table - The adjusted RGB colour as a table with three elements: red, green, and blue.
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@param amount number The amount to adjust the colour by.
+    ---@param lighten boolean Whether to lighten (true) or darken (false) the colour.
+    ---@returns table The adjusted RGB colour as a table with three elements: red, green, and blue.
     function self.adjust_colour(rgb, amount, lighten)
       ___.v.rgb_table(rgb, 1, false)
       ___.v.type(amount, "number", 2, true)
@@ -218,11 +227,11 @@ local ColourClass = Glu.glass.register({
     end
 
     --- Lightens a colour by a given amount.
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @param amount number - The amount to lighten the colour by. (Optional, defaults to 30)
-    --- @return table - The lightened RGB colour as a table with three elements: red, green, and blue.
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@param amount number The amount to lighten the colour by. (Optional, defaults to 30)
+    ---@returns table The lightened RGB colour as a table with three elements: red, green, and blue.
     ---
-    --- @example
+    ---@example
     --- ```lua
     --- colour.lighten({100,100,100},50)
     --- -- {150, 150, 150}
@@ -233,11 +242,11 @@ local ColourClass = Glu.glass.register({
 
     --- Darkens a colour by a given amount.
     ---
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @param amount number - The amount to darken the colour by. (Optional, defaults to 30)
-    --- @return table - The darkened RGB colour as a table with three elements: red, green, and blue.
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@param amount number The amount to darken the colour by. (Optional, defaults to 30)
+    ---@returns table The darkened RGB colour as a table with three elements: red, green, and blue.
     ---
-    --- @example
+    ---@example
     --- ```lua
     --- colour.darken({100,100,100},50)
     --- -- {50, 50, 50}
@@ -248,12 +257,12 @@ local ColourClass = Glu.glass.register({
 
     --- Lightens or darkens the first colour by a given amount based on a comparison with the second colour.
     --- If the colours are already contrasting, the original colour is returned.
-    --- @param rgb_colour table - The RGB colour to adjust, as a table with three elements: red, green, and blue.
-    --- @param rgb_compare table - The RGB colour to compare against, as a table with three elements: red, green, and blue.
-    --- @param amount number - The amount to lighten or darken the colour by. (Optional, defaults to 85)
-    --- @return table - The adjusted RGB colour as a table with three elements: red, green, and blue. Unless the colours are already constrasted, in which case the original colour is returned.
+    ---@param rgb_colour table The RGB colour to adjust, as a table with three elements: red, green, and blue.
+    ---@param rgb_compare table The RGB colour to compare against, as a table with three elements: red, green, and blue.
+    ---@param amount number The amount to lighten or darken the colour by. (Optional, defaults to 85)
+    ---@returns table The adjusted RGB colour as a table with three elements: red, green, and blue. Unless the colours are already constrasted, in which case the original colour is returned.
     ---
-    --- @example
+    ---@example
     --- ```lua
     --- colour.lighten_or_darken({100,100,100}, {255,255,255}, 50)
     --- -- {100, 100, 100}
@@ -282,13 +291,13 @@ local ColourClass = Glu.glass.register({
     end
 
     --- Returns the complementary colour of a given colour.
-    --- @example
+    ---@example
     --- ```lua
     --- colour.complementary({ 150, 150, 150 })
     --- -- { 105, 105, 105 }
     --- ```
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @return table - The complementary RGB colour as a table with three elements: red, green, and blue.
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@returns table The complementary RGB colour as a table with three elements: red, green, and blue.
     function self.complementary(rgb)
       ___.v.rgb_table(rgb, 1, false)
 
@@ -300,13 +309,13 @@ local ColourClass = Glu.glass.register({
     end
 
     --- Converts a colour to its grayscale equivalent.
-    --- @example
+    ---@example
     --- ```lua
     --- colour.grayscale({ 35, 50, 100 })
     --- -- { 62, 62, 62 }
     --- ```
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @return table - The grayscale RGB colour as a table with three elements: red, green, and blue.
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@returns table The grayscale RGB colour as a table with three elements: red, green, and blue.
     function self.grayscale(rgb)
       ___.v.rgb_table(rgb, 1, false)
 
@@ -315,14 +324,14 @@ local ColourClass = Glu.glass.register({
     end
 
     --- Adjusts the saturation of a colour by a given factor.
-    --- @example
+    ---@example
     --- ```lua
     --- colour.adjust_saturation({ 35, 50, 100 }, 0.5)
     --- -- { 48, 55, 80 }
     --- ```
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @param factor number - A factor between 0 (fully desaturated) and 1 (fully saturated).
-    --- @return table - The adjusted RGB colour as a table with three elements: red, green, and blue.
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@param factor number A factor between 0 (fully desaturated) and 1 (fully saturated).
+    ---@returns table The adjusted RGB colour as a table with three elements: red, green, and blue.
     function self.adjust_saturation(rgb, factor)
       ___.v.rgb_table(rgb, 1, false)
       ___.v.type(factor, "number", 2, true)
@@ -337,25 +346,25 @@ local ColourClass = Glu.glass.register({
     end
 
     --- Generates a random RGB colour.
-    --- @example
+    ---@example
     --- ```lua
     --- colour.random()
     --- -- { 123, 45, 67 }
     --- ```
-    --- @return table - A random RGB colour as a table with three elements: red, green, and blue.
+    ---@returns table A random RGB colour as a table with three elements: red, green, and blue.
     function self.random()
       return { math.random(0, 255), math.random(0, 255), math.random(0, 255) }
     end
 
     --- Generates a random shade of a given colour within a range.
-    --- @example
+    ---@example
     --- ```lua
     --- colour.random_shade({ 100, 100, 100 }, 50)
     --- -- { 150, 150, 150 }
     --- ```
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @param range number - The range to adjust the colour by (e.g., 50 means +/- 50 for R, G, and B). (Optional, defaults to 50)
-    --- @return table - A random RGB colour that is a shade of the given colour.
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@param range number The range to adjust the colour by (e.g., 50 means +/- 50 for R, G, and B). (Optional, defaults to 50)
+    ---@returns table A random RGB colour that is a shade of the given colour.
     function self.random_shade(rgb, range)
       ___.v.rgb_table(rgb, 1, false)
       ___.v.type(range, "number", 2, true)
@@ -371,13 +380,13 @@ local ColourClass = Glu.glass.register({
     --- Generates the triad colours of a given colour. Does not return the
     --- original colour, but two returned colours that are considered tritones of
     --- the original colour.
-    --- @example
+    ---@example
     --- ```lua
     --- colour.triad({ 100, 100, 100 })
     --- -- { { 15, 204, 204 }, { 100, 204, 204 } }
     --- ```
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @return table - A table of RGB colours that are the triad of the given colour.
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@returns table A table of RGB colours that are the triad of the given colour.
     function self.triad(rgb)
       ___.v.rgb_table(rgb, 1, false)
 
@@ -392,10 +401,10 @@ local ColourClass = Glu.glass.register({
     --- Generates the analogous colours of a given colour.
     --- The analogous colours are generated by rotating the hue of the given
     --- colour by a given angle.
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @param angle number - The angle to separate the analogous colours by. (Optional, defaults to 30)
-    --- @return table - A table of RGB colours that are analogous to the given colour.
-    --- @example
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@param angle number The angle to separate the analogous colours by. (Optional, defaults to 30)
+    ---@returns table A table of RGB colours that are analogous to the given colour.
+    ---@example
     --- ```lua
     --- colour.analogous({ 100, 100, 100 })
     --- -- { { 70, 100, 100 }, { 100, 100, 100 }, { 130, 100, 100 } }
@@ -415,14 +424,14 @@ local ColourClass = Glu.glass.register({
     end
 
     --- Generates the split complement colours of a given colour.
-    --- @example
+    ---@example
     --- ```lua
     --- colour.split_complement({ 100, 100, 100 })
     --- -- { { 15, 204, 204 }, { 100, 204, 204 } }
     --- ```
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @param angle number - The angle to separate the split complement colours by. (Optional, defaults to 30)
-    --- @return table - A table of RGB colours that are the split complement of the given colour.
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@param angle number The angle to separate the split complement colours by. (Optional, defaults to 30)
+    ---@returns table A table of RGB colours that are the split complement of the given colour.
     function self.split_complement(rgb, angle)
       ___.v.rgb_table(rgb, 1, false)
       ___.v.type(angle, "number", 2, true)
@@ -438,14 +447,14 @@ local ColourClass = Glu.glass.register({
     end
 
     --- Generates a series of monochromatic colours based on a given colour.
-    --- @example
+    ---@example
     --- ```lua
     --- colour.monochrome({ 100, 100, 100 })
     --- -- { { 100, 100, 100 }, { 100, 100, 100 }, { 100, 100, 100 } }
     --- ```
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @param steps number - The number of variations to generate. (Optional, defaults to 5)
-    --- @return table - A table of RGB colours that are monochromatic variations of the given colour.
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@param steps number The number of variations to generate. (Optional, defaults to 5)
+    ---@returns table A table of RGB colours that are monochromatic variations of the given colour.
     function self.monochrome(rgb, steps)
       ___.v.rgb_table(rgb, 1, false)
       ___.v.type(steps, "number", 2, true)
@@ -465,13 +474,13 @@ local ColourClass = Glu.glass.register({
     end
 
     --- Generates the tetrad colours of a given colour.
-    --- @example
+    ---@example
     --- ```lua
     --- colour.tetrad({ 100, 100, 100 })
     --- -- { { 100, 100, 100 }, { 100, 100, 100 }, { 100, 100, 100 }, { 100, 100, 100 } }
     --- ```
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @return table - A table of RGB colours that are the tetrad of the given colour.
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@returns table A table of RGB colours that are the tetrad of the given colour.
     function self.tetrad(rgb)
       ___.v.rgb_table(rgb, 1, false)
 
@@ -485,14 +494,14 @@ local ColourClass = Glu.glass.register({
     end
 
     --- Calculates the contrast ratio between two colours.
-    --- @example
+    ---@example
     --- ```lua
     --- colour.contrast_ratio({ 100, 100, 100 }, { 0, 0, 0 })
     --- -- 12.0
     --- ```
-    --- @param rgb1 table - The first RGB colour as a table with three elements: red, green, and blue.
-    --- @param rgb2 table - The second RGB colour as a table with three elements: red, green, and blue.
-    --- @return number - The contrast ratio between the two colours.
+    ---@param rgb1 table The first RGB colour as a table with three elements: red, green, and blue.
+    ---@param rgb2 table The second RGB colour as a table with three elements: red, green, and blue.
+    ---@returns number The contrast ratio between the two colours.
     function self.contrast_ratio(rgb1, rgb2)
       ___.v.rgb_table(rgb1, 1, false)
       ___.v.rgb_table(rgb2, 2, false)
@@ -517,13 +526,13 @@ local ColourClass = Glu.glass.register({
     end
 
     --- Calculates the contrasting colour based on the luminance of a given colour.
-    --- @example
+    ---@example
     --- ```lua
     --- colour.contrast({ 100, 100, 100 })
     --- -- { 0, 0, 0 }
     --- ```
-    --- @param rgb table - The RGB colour as a table with three elements: red, green, and blue.
-    --- @return table - The contrasting colour as a table with three elements: red, green, and blue.
+    ---@param rgb table The RGB colour as a table with three elements: red, green, and blue.
+    ---@returns table The contrasting colour as a table with three elements: red, green, and blue.
     function self.contrast(rgb)
       ___.v.rgb_table(rgb, 1, false)
 

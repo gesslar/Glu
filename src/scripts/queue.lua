@@ -13,10 +13,10 @@ local QueueClass = Glu.glass.register({
     --- is available both through the queue object and the functions from this
     --- module. The ID is in the form of a v4 UUID.
     ---
-    --- @param funcs table? - A table of functions to be added to the queue
-    --- @return table - The new queue object
+    ---@param funcs table? A table of functions to be added to the queue
+    ---@returns table The new queue object
     ---
-    --- @example
+    ---@example
     --- ```lua
     --- local queue = queue.new(parent).new({})
     --- ```
@@ -34,8 +34,8 @@ local QueueClass = Glu.glass.register({
     --- Retrieves a queue object by its identifier. If no queue is found, nil is
     --- returned, otherwise the queue object is returned.
     ---
-    --- @param id string - The identifier of the queue to retrieve
-    --- @return table|nil - The queue object or nil if not found
+    ---@param id string The identifier of the queue to retrieve
+    ---@returns table|nil The queue object or nil if not found
     function self.get(id)
       ___.v.type(id, "string", 1, false)
 
@@ -47,9 +47,9 @@ local QueueClass = Glu.glass.register({
 
     --- Add a function to the end of a queue by its identifier.
     ---
-    --- @param id string - The identifier of the queue to add the function to
-    --- @param f function - The function to add to the queue
-    --- @example
+    ---@param id string The identifier of the queue to add the function to
+    ---@param f function The function to add to the queue
+    ---@example
     --- ```lua
     --- queue:push("2ce02d6a-36a8-45ab-a78e-7f909427e1d1",
     ---   function() print("Hello, world!")
@@ -65,6 +65,11 @@ local QueueClass = Glu.glass.register({
       return q.push(f)
     end
 
+    --- Removes and returns the next item from the named queue.
+    ---
+    ---@param id string The identifier of the queue to shift from.
+    ---@returns any The next item removed from the queue, or nil on failure.
+    ---@returns string An error message if the queue could not be found.
     function self.shift(id)
       ___.v.type(id, "string", 1, false)
 

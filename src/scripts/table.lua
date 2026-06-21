@@ -3,6 +3,17 @@ local TableClass = Glu.glass.register({
   class_name = "TableClass",
   dependencies = {},
   setup = function(___, self)
+    --- Casts the given value(s) into an indexed table. If a single indexed
+    --- table is passed, it is returned unchanged; otherwise the arguments are
+    --- collected into a new table.
+    ---
+    ---@param ... any The value(s) to cast into an indexed table.
+    ---@returns table The resulting indexed table.
+    ---@example
+    --- ```lua
+    --- table.n_cast(1, 2, 3)
+    --- -- {1, 2, 3}
+    --- ```
     function self.n_cast(...)
       if type(...) == "table" and self.indexed(...) then
         return ...
@@ -13,6 +24,18 @@ local TableClass = Glu.glass.register({
 
     self.assure_indexed = self.n_cast
 
+    --- Maps each element of a table to a new value using the provided function,
+    --- preserving the original keys.
+    ---
+    ---@param t table The table to map over.
+    ---@param fn function The function called as fn(key, value, ...) for each element.
+    ---@param ... any Additional arguments passed to the mapping function.
+    ---@returns table A new table with the mapped values.
+    ---@example
+    --- ```lua
+    --- table.map({1, 2, 3}, function(k, v) return v * 2 end)
+    --- -- {2, 4, 6}
+    --- ```
     function self.map(t, fn, ...)
       ___.v.type(t, "table", 1, false)
       ___.v.type(fn, "function", 2, false)
@@ -24,6 +47,16 @@ local TableClass = Glu.glass.register({
       return result
     end
 
+    --- Returns an indexed table containing the values of the given table,
+    --- discarding the keys.
+    ---
+    ---@param t table The table whose values to collect.
+    ---@returns table An indexed table of the values.
+    ---@example
+    --- ```lua
+    --- table.values({a = 1, b = 2})
+    --- -- {1, 2}
+    --- ```
     function self.values(t)
       ___.v.type(t, "table", 1, false)
 
@@ -34,6 +67,17 @@ local TableClass = Glu.glass.register({
       return result
     end
 
+    --- Determines whether all elements of an indexed table are of the same
+    --- type.
+    ---
+    ---@param t table The indexed table to check.
+    ---@param typ string|nil The type to check against. (Optional. Default is the type of the first element.)
+    ---@returns boolean True if all elements are of the given type, otherwise false.
+    ---@example
+    --- ```lua
+    --- table.n_uniform({1, 2, 3})
+    --- -- true
+    --- ```
     function self.n_uniform(t, typ)
       ___.v.type(t, "table", 1, false)
       ___.v.indexed(t, 1, false)
@@ -50,6 +94,16 @@ local TableClass = Glu.glass.register({
       return true
     end
 
+    --- Returns a new indexed table containing only the distinct values of the
+    --- given indexed table, preserving their first-seen order.
+    ---
+    ---@param t table The indexed table to deduplicate.
+    ---@returns table A new indexed table of distinct values.
+    ---@example
+    --- ```lua
+    --- table.n_distinct({1, 2, 2, 3, 3, 3})
+    --- -- {1, 2, 3}
+    --- ```
     function self.n_distinct(t)
       ___.v.indexed(t, 1, false)
 
@@ -63,12 +117,31 @@ local TableClass = Glu.glass.register({
       return result
     end
 
+    --- Removes and returns the last element of an indexed table.
+    ---
+    ---@param t table The indexed table to pop from.
+    ---@returns any The removed last element.
+    ---@example
+    --- ```lua
+    --- table.pop({1, 2, 3})
+    --- -- 3
+    --- ```
     function self.pop(t)
       ___.v.type(t, "table", 1, false)
       ___.v.indexed(t, 1, false)
       return table.remove(t, #t)
     end
 
+    --- Appends a value to the end of an indexed table.
+    ---
+    ---@param t table The indexed table to push onto.
+    ---@param v any The value to append.
+    ---@returns number The new length of the table.
+    ---@example
+    --- ```lua
+    --- table.push({1, 2}, 3)
+    --- -- 3
+    --- ```
     function self.push(t, v)
       ___.v.type(t, "table", 1, false)
       ___.v.type(v, "any", 2, false)
@@ -78,6 +151,17 @@ local TableClass = Glu.glass.register({
       return #t
     end
 
+    --- Inserts a value at the beginning of an indexed table, shifting the
+    --- existing elements up.
+    ---
+    ---@param t table The indexed table to unshift onto.
+    ---@param v any The value to insert at the front.
+    ---@returns number The new length of the table.
+    ---@example
+    --- ```lua
+    --- table.unshift({2, 3}, 1)
+    --- -- 3
+    --- ```
     function self.unshift(t, v)
       ___.v.type(t, "table", 1, false)
       ___.v.type(v, "any", 2, false)
@@ -87,12 +171,34 @@ local TableClass = Glu.glass.register({
       return #t
     end
 
+    --- Removes and returns the first element of an indexed table, shifting the
+    --- remaining elements down.
+    ---
+    ---@param t table The indexed table to shift from.
+    ---@returns any The removed first element.
+    ---@example
+    --- ```lua
+    --- table.shift({1, 2, 3})
+    --- -- 1
+    --- ```
     function self.shift(t)
       ___.v.type(t, "table", 1, false)
       ___.v.indexed(t, 1, false)
       return table.remove(t, 1)
     end
 
+    --- Builds an associative table using the values of source as keys. The
+    --- value for each key is taken from a parallel spec table, computed by a
+    --- spec function, or set to a constant spec value.
+    ---
+    ---@param source table An indexed, non-empty table whose values become the keys.
+    ---@param spec any A parallel indexed table, a function called as spec(index, key), or a constant value.
+    ---@returns table The resulting associative table.
+    ---@example
+    --- ```lua
+    --- table.allocate({"a", "b"}, {1, 2})
+    --- -- {a = 1, b = 2}
+    --- ```
     function self.allocate(source, spec)
       local spec_type = type(spec)
       ___.v.type(source, "table", 1, false)
@@ -124,6 +230,16 @@ local TableClass = Glu.glass.register({
       return result
     end
 
+    --- Determines whether a table is indexed, meaning its keys are sequential
+    --- integers starting at 1.
+    ---
+    ---@param t table The table to check.
+    ---@returns boolean True if the table is indexed, otherwise false.
+    ---@example
+    --- ```lua
+    --- table.indexed({1, 2, 3})
+    --- -- true
+    --- ```
     function self.indexed(t)
       ___.v.type(t, "table", 1, false)
 
@@ -137,6 +253,16 @@ local TableClass = Glu.glass.register({
       return true
     end
 
+    --- Determines whether a table is associative, meaning it has at least one
+    --- key that is not a positive integer.
+    ---
+    ---@param t table The table to check.
+    ---@returns boolean True if the table is associative, otherwise false.
+    ---@example
+    --- ```lua
+    --- table.associative({a = 1})
+    --- -- true
+    --- ```
     function self.associative(t)
       ___.v.type(t, "table", 1, false)
 
@@ -148,6 +274,18 @@ local TableClass = Glu.glass.register({
       return false
     end
 
+    --- Reduces a table to a single value by iteratively applying a function to
+    --- an accumulator and each element.
+    ---
+    ---@param t table The indexed table to reduce.
+    ---@param fn function The reducer called as fn(accumulator, value, key).
+    ---@param initial any The initial value of the accumulator.
+    ---@returns any The final accumulated value.
+    ---@example
+    --- ```lua
+    --- table.reduce({1, 2, 3}, function(acc, v) return acc + v end, 0)
+    --- -- 6
+    --- ```
     function self.reduce(t, fn, initial)
       ___.v.indexed(t, 1, false)
       ___.v.type(fn, "function", 2, false)
@@ -160,6 +298,18 @@ local TableClass = Glu.glass.register({
       return acc
     end
 
+    --- Returns a new indexed table containing the elements from start to stop,
+    --- inclusive.
+    ---
+    ---@param t table The indexed table to slice.
+    ---@param start number The starting index (1-based).
+    ---@param stop number|nil The ending index. (Optional. Default is the length of the table.)
+    ---@returns table A new indexed table with the sliced elements.
+    ---@example
+    --- ```lua
+    --- table.slice({1, 2, 3, 4}, 2, 3)
+    --- -- {2, 3}
+    --- ```
     function self.slice(t, start, stop)
       ___.v.indexed(t, 1, false)
       ___.v.type(start, "number", 2, false)
@@ -179,6 +329,19 @@ local TableClass = Glu.glass.register({
       return result
     end
 
+    --- Removes a range of elements from an indexed table in place, returning the
+    --- modified table and the removed elements.
+    ---
+    ---@param t table The indexed table to remove from.
+    ---@param start number The starting index (1-based) of the range to remove.
+    ---@param stop number|nil The ending index of the range. (Optional. Default is start.)
+    ---@returns table The modified table with the range removed.
+    ---@returns table An indexed table of the removed elements.
+    ---@example
+    --- ```lua
+    --- table.remove({1, 2, 3, 4}, 2, 3)
+    --- -- {1, 4}, {2, 3}
+    --- ```
     function self.remove(t, start, stop)
       ___.v.indexed(t, 1, false)
       ___.v.type(start, "number", 2, false)
@@ -196,6 +359,17 @@ local TableClass = Glu.glass.register({
       return t, snipped
     end
 
+    --- Splits an indexed table into a table of smaller indexed tables, each of
+    --- the given size (the final chunk may be smaller).
+    ---
+    ---@param t table The indexed table to chunk.
+    ---@param size number The maximum size of each chunk.
+    ---@returns table A table of chunk tables.
+    ---@example
+    --- ```lua
+    --- table.chunk({1, 2, 3, 4, 5}, 2)
+    --- -- {{1, 2}, {3, 4}, {5}}
+    --- ```
     function self.chunk(t, size)
       ___.v.indexed(t, 1, false)
       ___.v.type(size, "number", 2, false)
@@ -207,6 +381,17 @@ local TableClass = Glu.glass.register({
       return result
     end
 
+    --- Appends the given values to an indexed table in place. Table arguments
+    --- are flattened one level, with their elements appended individually.
+    ---
+    ---@param tbl table The indexed table to append to.
+    ---@param ... any The values or tables to append.
+    ---@returns table The modified table.
+    ---@example
+    --- ```lua
+    --- table.concat({1, 2}, {3, 4}, 5)
+    --- -- {1, 2, 3, 4, 5}
+    --- ```
     function self.concat(tbl, ...)
       ___.v.indexed(tbl, 1, false)
 
@@ -225,6 +410,16 @@ local TableClass = Glu.glass.register({
       return tbl
     end
 
+    --- Returns a new indexed table with the first n elements removed.
+    ---
+    ---@param tbl table The indexed table to drop from.
+    ---@param n number The number of elements to drop from the start.
+    ---@returns table A new indexed table without the first n elements.
+    ---@example
+    --- ```lua
+    --- table.drop({1, 2, 3, 4}, 2)
+    --- -- {3, 4}
+    --- ```
     function self.drop(tbl, n)
       ___.v.indexed(tbl, 1, false)
       ___.v.type(n, "number", 2, false)
@@ -232,6 +427,16 @@ local TableClass = Glu.glass.register({
       return self.slice(tbl, n + 1)
     end
 
+    --- Returns a new indexed table with the last n elements removed.
+    ---
+    ---@param tbl table The indexed table to drop from.
+    ---@param n number The number of elements to drop from the end.
+    ---@returns table A new indexed table without the last n elements.
+    ---@example
+    --- ```lua
+    --- table.drop_right({1, 2, 3, 4}, 2)
+    --- -- {1, 2}
+    --- ```
     function self.drop_right(tbl, n)
       ___.v.indexed(tbl, 1, false)
       ___.v.type(n, "number", 2, false)
@@ -239,6 +444,18 @@ local TableClass = Glu.glass.register({
       return self.slice(tbl, 1, #tbl - n)
     end
 
+    --- Fills a range of an indexed table in place with the given value.
+    ---
+    ---@param tbl table The indexed table to fill.
+    ---@param value any The value to fill with.
+    ---@param start number|nil The starting index of the range. (Optional. Default is 1.)
+    ---@param stop number|nil The ending index of the range. (Optional. Default is the length of the table.)
+    ---@returns table The modified table.
+    ---@example
+    --- ```lua
+    --- table.fill({1, 2, 3, 4}, 0, 2, 3)
+    --- -- {1, 0, 0, 4}
+    --- ```
     function self.fill(tbl, value, start, stop)
       ___.v.indexed(tbl, 1, false)
       ___.v.type(value, "any", 2, false)
@@ -253,6 +470,17 @@ local TableClass = Glu.glass.register({
       return tbl
     end
 
+    --- Returns the index of the first element for which the predicate returns
+    --- true, or nil if none match.
+    ---
+    ---@param tbl table The indexed table to search.
+    ---@param fn function The predicate called as fn(index, value).
+    ---@returns number|nil The index of the first matching element, or nil.
+    ---@example
+    --- ```lua
+    --- table.find({1, 2, 3}, function(i, v) return v == 2 end)
+    --- -- 2
+    --- ```
     function self.find(tbl, fn)
       ___.v.indexed(tbl, 1, false)
       ___.v.type(fn, "function", 2, false)
@@ -265,6 +493,17 @@ local TableClass = Glu.glass.register({
       return nil
     end
 
+    --- Returns the index of the last element for which the predicate returns
+    --- true, or nil if none match.
+    ---
+    ---@param tbl table The indexed table to search.
+    ---@param fn function The predicate called as fn(index, value).
+    ---@returns number|nil The index of the last matching element, or nil.
+    ---@example
+    --- ```lua
+    --- table.find_last({1, 2, 2, 3}, function(i, v) return v == 2 end)
+    --- -- 3
+    --- ```
     function self.find_last(tbl, fn)
       ___.v.indexed(tbl, 1, false)
       ___.v.type(fn, "function", 2, false)
@@ -277,6 +516,16 @@ local TableClass = Glu.glass.register({
       return nil
     end
 
+    --- Flattens an indexed table by one level, expanding any nested tables into
+    --- the result.
+    ---
+    ---@param tbl table The indexed table to flatten.
+    ---@returns table A new indexed table flattened one level.
+    ---@example
+    --- ```lua
+    --- table.flatten({1, {2, 3}, 4})
+    --- -- {1, 2, 3, 4}
+    --- ```
     function self.flatten(tbl)
       ___.v.indexed(tbl, 1, false)
 
@@ -292,6 +541,16 @@ local TableClass = Glu.glass.register({
       return result
     end
 
+    --- Recursively flattens an indexed table, expanding all nested tables at any
+    --- depth into the result.
+    ---
+    ---@param tbl table The indexed table to flatten.
+    ---@returns table A new fully flattened indexed table.
+    ---@example
+    --- ```lua
+    --- table.flatten_deeply({1, {2, {3, 4}}})
+    --- -- {1, 2, 3, 4}
+    --- ```
     function self.flatten_deeply(tbl)
       ___.v.indexed(tbl, 1, false)
 
@@ -307,12 +566,32 @@ local TableClass = Glu.glass.register({
       return result
     end
 
+    --- Returns a new indexed table containing all but the last element.
+    ---
+    ---@param tbl table The indexed table to take the initial elements from.
+    ---@returns table A new indexed table without the last element.
+    ---@example
+    --- ```lua
+    --- table.initial({1, 2, 3})
+    --- -- {1, 2}
+    --- ```
     function self.initial(tbl)
       ___.v.indexed(tbl, 1, false)
       if #tbl <= 1 then return {} end
       return self.slice(tbl, 1, #tbl - 1)
     end
 
+    --- Removes all occurrences of the given values from an indexed table in
+    --- place.
+    ---
+    ---@param tbl table The indexed table to pull values from.
+    ---@param ... any The values to remove.
+    ---@returns table The modified table.
+    ---@example
+    --- ```lua
+    --- table.pull({1, 2, 3, 2, 1}, 2)
+    --- -- {1, 3, 1}
+    --- ```
     function self.pull(tbl, ...)
       ___.v.indexed(tbl, 1, false)
 
@@ -333,6 +612,15 @@ local TableClass = Glu.glass.register({
       return tbl
     end
 
+    --- Reverses the order of the elements of an indexed table in place.
+    ---
+    ---@param tbl table The indexed table to reverse.
+    ---@returns table The reversed table.
+    ---@example
+    --- ```lua
+    --- table.reverse({1, 2, 3})
+    --- -- {3, 2, 1}
+    --- ```
     function self.reverse(tbl)
       ___.v.indexed(tbl, 1, false)
 
@@ -343,6 +631,16 @@ local TableClass = Glu.glass.register({
       return tbl
     end
 
+    --- Removes duplicate values from an indexed table in place, keeping the
+    --- first occurrence of each value.
+    ---
+    ---@param tbl table The indexed table to deduplicate.
+    ---@returns table The modified table with duplicates removed.
+    ---@example
+    --- ```lua
+    --- table.uniq({1, 2, 2, 3, 1})
+    --- -- {1, 2, 3}
+    --- ```
     function self.uniq(tbl)
       ___.v.indexed(tbl, 1, false)
 
@@ -366,6 +664,16 @@ local TableClass = Glu.glass.register({
       return tbl
     end
 
+    --- Unzips a table of equal-length sub-tables, regrouping their elements by
+    --- position into new sub-tables.
+    ---
+    ---@param tbl table An indexed table of equal-length indexed sub-tables.
+    ---@returns table A new table of sub-tables grouped by position.
+    ---@example
+    --- ```lua
+    --- table.unzip({{1, "a"}, {2, "b"}})
+    --- -- {{1, 2}, {"a", "b"}}
+    --- ```
     function self.unzip(tbl)
       ___.v.indexed(tbl, 1, false)
 
@@ -391,6 +699,15 @@ local TableClass = Glu.glass.register({
       return result
     end
 
+    --- Creates a new table with weak references, controlled by the given mode.
+    ---
+    ---@param opt string|nil The weak mode: "k", "v", or "kv". (Optional. Default is "v".)
+    ---@returns table A new table with the specified weak mode.
+    ---@example
+    --- ```lua
+    --- table.new_weak("kv")
+    --- -- a table with weak keys and values
+    --- ```
     function self.new_weak(opt)
       opt = opt or "v"
       ___.v.test(rex.match(opt, "^(k?v?|v?k?)$"), opt, 1, false)
@@ -398,12 +715,31 @@ local TableClass = Glu.glass.register({
       return setmetatable({}, { __mode = opt })
     end
 
+    --- Determines whether a table holds weak references.
+    ---
+    ---@param tbl table The table to check.
+    ---@returns boolean True if the table has a weak mode set, otherwise false.
+    ---@example
+    --- ```lua
+    --- table.weak(table.new_weak("v"))
+    --- -- true
+    --- ```
     function self.weak(tbl)
       ___.v.type(tbl, "table", 1, false)
       local mt = getmetatable(tbl)
       return mt ~= nil and mt.__mode ~= nil
     end
 
+    --- Zips multiple equal-length indexed tables together, grouping elements at
+    --- the same position into new sub-tables.
+    ---
+    ---@param ... table The equal-length indexed tables to zip.
+    ---@returns table A new table of position-grouped sub-tables.
+    ---@example
+    --- ```lua
+    --- table.zip({1, 2}, {"a", "b"})
+    --- -- {{1, "a"}, {2, "b"}}
+    --- ```
     function self.zip(...)
       local tbls = { ... }
       local results = {}
@@ -420,6 +756,16 @@ local TableClass = Glu.glass.register({
       return results
     end
 
+    --- Determines whether an indexed table contains the given value.
+    ---
+    ---@param tbl table The indexed table to search.
+    ---@param value any The value to look for.
+    ---@returns boolean True if the value is present, otherwise false.
+    ---@example
+    --- ```lua
+    --- table.includes({1, 2, 3}, 2)
+    --- -- true
+    --- ```
     function self.includes(tbl, value)
       ___.v.indexed(tbl, 1, false)
       ___.v.type(value, "any", 2, false)
@@ -481,6 +827,17 @@ local TableClass = Glu.glass.register({
       return result
     end
 
+    --- Returns the names of all function-valued keys of an object table,
+    --- optionally including those inherited through its metatable chain.
+    ---
+    ---@param tbl table The object table to inspect.
+    ---@param extending boolean|nil Whether to include inherited functions. (Optional. Default is false.)
+    ---@returns table An indexed table of function names.
+    ---@example
+    --- ```lua
+    --- table.functions(myObject)
+    --- -- {"method_a", "method_b"}
+    --- ```
     function self.functions(tbl, extending)
       ___.v.object(tbl, 1, false)
       ___.v.type(extending, "boolean", 2, true)
@@ -493,6 +850,17 @@ local TableClass = Glu.glass.register({
     -- Alias for functions
     self.methods = self.functions
 
+    --- Returns the names of all non-function keys of an object table, optionally
+    --- including those inherited through its metatable chain.
+    ---
+    ---@param tbl table The object table to inspect.
+    ---@param extending boolean|nil Whether to include inherited properties. (Optional. Default is false.)
+    ---@returns table An indexed table of property names.
+    ---@example
+    --- ```lua
+    --- table.properties(myObject)
+    --- -- {"name", "value"}
+    --- ```
     function self.properties(tbl, extending)
       ___.v.object(tbl, 1, false)
       ___.v.type(extending, "boolean", 2, true)
@@ -503,11 +871,32 @@ local TableClass = Glu.glass.register({
       return assemble_results(tables, test)
     end
 
+    --- Determines whether a table is an object, identified by an `object` field
+    --- set to true.
+    ---
+    ---@param tbl table The table to check.
+    ---@returns boolean True if the table is an object, otherwise false.
+    ---@example
+    --- ```lua
+    --- table.object({object = true})
+    --- -- true
+    --- ```
     function self.object(tbl)
       ___.v.type(tbl, "table", 1, false)
       return tbl.object == true
     end
 
+    --- Merges the key-value pairs of one associative table into another in
+    --- place, overwriting existing keys.
+    ---
+    ---@param tbl table The associative table to merge into.
+    ---@param value table The associative table whose pairs are copied in.
+    ---@returns table The modified table.
+    ---@example
+    --- ```lua
+    --- table.add({a = 1}, {b = 2})
+    --- -- {a = 1, b = 2}
+    --- ```
     function self.add(tbl, value)
       ___.v.associative(tbl, 1, false)
       ___.v.associative(value, 2, false)
@@ -519,6 +908,18 @@ local TableClass = Glu.glass.register({
       return tbl
     end
 
+    --- Inserts the elements of one indexed table into another at the given
+    --- index, in place.
+    ---
+    ---@param tbl1 table The indexed table to insert into.
+    ---@param tbl2 table The indexed table whose elements are inserted.
+    ---@param index number|nil The position at which to insert. (Optional. Default is the end of tbl1.)
+    ---@returns table The modified table.
+    ---@example
+    --- ```lua
+    --- table.n_add({1, 4}, {2, 3}, 2)
+    --- -- {1, 2, 3, 4}
+    --- ```
     function self.n_add(tbl1, tbl2, index)
       ___.v.indexed(tbl1, 1, false)
       ___.v.indexed(tbl2, 2, false)
@@ -535,6 +936,17 @@ local TableClass = Glu.glass.register({
       return tbl1
     end
 
+    --- Returns a stateful iterator function that walks the elements of an
+    --- indexed table, yielding each index and value.
+    ---
+    ---@param tbl table The indexed table to walk.
+    ---@returns function An iterator returning index and value on each call.
+    ---@example
+    --- ```lua
+    --- for i, v in table.walk({"a", "b"}) do print(i, v) end
+    --- -- 1 a
+    --- -- 2 b
+    --- ```
     function self.walk(tbl)
       ___.v.indexed(tbl, 1, false)
 
@@ -545,6 +957,15 @@ local TableClass = Glu.glass.register({
       end
     end
 
+    --- Returns a uniformly random element from an indexed table.
+    ---
+    ---@param list table The indexed table to choose from.
+    ---@returns any A randomly chosen element.
+    ---@example
+    --- ```lua
+    --- table.element_of({"a", "b", "c"})
+    --- -- "b"
+    --- ```
     function self.element_of(list)
       ___.v.type(list, "table", 1, false)
 
@@ -552,6 +973,16 @@ local TableClass = Glu.glass.register({
       return list[math.random(max)]
     end
 
+    --- Returns a randomly chosen key from an associative table, where each
+    --- value is the relative weight of its key.
+    ---
+    ---@param list table An associative table mapping keys to numeric weights.
+    ---@returns any A randomly chosen key, weighted by its value.
+    ---@example
+    --- ```lua
+    --- table.element_of_weighted({common = 90, rare = 10})
+    --- -- "common"
+    --- ```
     function self.element_of_weighted(list)
       ___.v.type(list, "table", 1, false)
 
@@ -578,6 +1009,17 @@ local TableClass = Glu.glass.register({
       return condition
     end
 
+    --- Determines whether all elements of an indexed table satisfy the
+    --- condition. The condition may be a predicate function or a value to match.
+    ---
+    ---@param tbl table The indexed table to test.
+    ---@param condition any A predicate function or a value to compare each element against.
+    ---@returns boolean True if every element satisfies the condition, otherwise false.
+    ---@example
+    --- ```lua
+    --- table.all({2, 4, 6}, function(v) return v % 2 == 0 end)
+    --- -- true
+    --- ```
     function self.all(tbl, condition)
       ___.v.indexed(tbl, 1, false)
       ___.v.type(condition, "any", 2, false)
@@ -594,6 +1036,17 @@ local TableClass = Glu.glass.register({
       return count == #tbl
     end
 
+    --- Determines whether at least one element of an indexed table satisfies the
+    --- condition. The condition may be a predicate function or a value to match.
+    ---
+    ---@param tbl table The indexed table to test.
+    ---@param condition any A predicate function or a value to compare each element against.
+    ---@returns boolean True if any element satisfies the condition, otherwise false.
+    ---@example
+    --- ```lua
+    --- table.some({1, 2, 3}, 2)
+    --- -- true
+    --- ```
     function self.some(tbl, condition)
       ___.v.indexed(tbl, 1, false)
       ___.v.type(condition, "any", 2, false)
@@ -603,6 +1056,17 @@ local TableClass = Glu.glass.register({
       return #table.n_filter(tbl, condition) > 0
     end
 
+    --- Determines whether no element of an indexed table satisfies the
+    --- condition. The condition may be a predicate function or a value to match.
+    ---
+    ---@param tbl table The indexed table to test.
+    ---@param condition any A predicate function or a value to compare each element against.
+    ---@returns boolean True if no element satisfies the condition, otherwise false.
+    ---@example
+    --- ```lua
+    --- table.none({1, 3, 5}, function(v) return v % 2 == 0 end)
+    --- -- true
+    --- ```
     function self.none(tbl, condition)
       ___.v.indexed(tbl, 1, false)
       ___.v.type(condition, "any", 2, false)
@@ -612,6 +1076,17 @@ local TableClass = Glu.glass.register({
       return #table.n_filter(tbl, condition) == 0
     end
 
+    --- Determines whether exactly one element of an indexed table satisfies the
+    --- condition. The condition may be a predicate function or a value to match.
+    ---
+    ---@param tbl table The indexed table to test.
+    ---@param condition any A predicate function or a value to compare each element against.
+    ---@returns boolean True if exactly one element satisfies the condition, otherwise false.
+    ---@example
+    --- ```lua
+    --- table.one({1, 2, 3}, 2)
+    --- -- true
+    --- ```
     function self.one(tbl, condition)
       ___.v.indexed(tbl, 1, false)
       ___.v.type(condition, "any", 2, false)
@@ -621,6 +1096,17 @@ local TableClass = Glu.glass.register({
       return #table.n_filter(tbl, condition) == 1
     end
 
+    --- Counts how many elements of an indexed table satisfy the condition. The
+    --- condition may be a predicate function or a value to match.
+    ---
+    ---@param tbl table The indexed table to test.
+    ---@param condition any A predicate function or a value to compare each element against.
+    ---@returns number The number of elements that satisfy the condition.
+    ---@example
+    --- ```lua
+    --- table.count({1, 2, 2, 3}, 2)
+    --- -- 2
+    --- ```
     function self.count(tbl, condition)
       ___.v.indexed(tbl, 1, false)
       ___.v.type(condition, "any", 2, false)
@@ -630,6 +1116,16 @@ local TableClass = Glu.glass.register({
       return #table.n_filter(tbl, condition)
     end
 
+    --- Returns a new indexed table sorted using natural comparison, leaving the
+    --- original table unmodified.
+    ---
+    ---@param tble table The indexed table to sort.
+    ---@returns table A new naturally sorted indexed table.
+    ---@example
+    --- ```lua
+    --- table.natural_sort({"item10", "item2", "item1"})
+    --- -- {"item1", "item2", "item10"}
+    --- ```
     function self.natural_sort(tble)
       ___.v.indexed(tble, 1, false)
 
@@ -641,6 +1137,18 @@ local TableClass = Glu.glass.register({
       return sorted
     end
 
+    --- Sorts an indexed table. If a comparator function is given, the table is
+    --- sorted in place with it; otherwise a new naturally sorted table is
+    --- returned.
+    ---
+    ---@param tbl table The indexed table to sort.
+    ---@param arg function|nil A comparator function. (Optional. When omitted, natural sort is used.)
+    ---@returns table|nil A new naturally sorted table when no comparator is given, otherwise nil.
+    ---@example
+    --- ```lua
+    --- table.sort({3, 1, 2})
+    --- -- {1, 2, 3}
+    --- ```
     function self.sort(tbl, arg)
       ___.v.indexed(tbl, 1, false)
 

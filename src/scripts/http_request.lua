@@ -5,6 +5,18 @@ local HttpRequestClass = Glu.glass.register({
   setup = function(___, self, options)
     self.options = options
 
+    --- Performs the HTTP request described by `self.options`.
+    --- Registers Mudlet named event handlers for the matching sysHttp
+    --- Done/Error events, then invokes the appropriate global HTTP function
+    --- (`getHTTP`, `postHTTP`, `customHTTP`, etc.). On completion it builds an
+    --- `http_response`, writes the body to `saveTo` when requested, invokes the
+    --- callback, and cleans up its event handlers.
+    ---
+    ---@returns object The request object.
+    ---@example
+    --- ```lua
+    --- request.execute()
+    --- ```
     function self.execute()
       local owner = self.container
 

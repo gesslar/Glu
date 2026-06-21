@@ -11,6 +11,17 @@ local TryClass = Glu.glass.register({
       result = nil
     }
 
+    --- Starts a new try chain by running the given function under pcall.
+    --- Creates a fresh try object and immediately runs `try` on it, recording
+    --- whether the function succeeded or errored.
+    ---
+    ---@param f function The function to execute.
+    ---@param ... any Arguments passed to the function.
+    ---@returns object The new try object for chaining.
+    ---@example
+    --- ```lua
+    --- try.clone(function() error("boom") end):catch(function(e) end)
+    --- ```
     function self.clone(f, ...)
       local glass = ___.get_glass("try")
       assert(glass, "TryClass not found")
@@ -19,6 +30,17 @@ local TryClass = Glu.glass.register({
     end
 
     -- first, let's try to execute the function
+    --- Runs the given function under pcall and records the result.
+    --- Stores success state, the returned value or error, and updates the try
+    --- object's `result` and `caught` fields.
+    ---
+    ---@param f function The function to execute.
+    ---@param ... any Arguments passed to the function.
+    ---@returns object The try object for chaining.
+    ---@example
+    --- ```lua
+    --- try.try(function() return 42 end):catch(function(e) end)
+    --- ```
     function self.try(f, ...)
       local success, try_result = pcall(f, ...)
       if success then
@@ -45,6 +67,16 @@ local TryClass = Glu.glass.register({
       return self
     end
 
+    --- Runs the given handler with the try result, capturing any error.
+    --- The handler receives the recorded try outcome. Its own success or failure
+    --- is stored in the catch result.
+    ---
+    ---@param f function The handler to run with the try result.
+    ---@returns object The try object for chaining.
+    ---@example
+    --- ```lua
+    --- try.clone(function() error("boom") end):catch(function(e) print(e.error) end)
+    --- ```
     function self.catch(f)
       local success, catch_result = pcall(f, result.try)
       if success then
@@ -65,6 +97,16 @@ local TryClass = Glu.glass.register({
       return self
     end
 
+    --- Always runs the given function, regardless of success or failure.
+    --- The function receives the full result. If the finally block itself errors,
+    --- that error is raised.
+    ---
+    ---@param f function The function to always run.
+    ---@returns object The try object for chaining.
+    ---@example
+    --- ```lua
+    --- try.clone(function() error("boom") end):finally(function(r) end)
+    --- ```
     function self.finally(f)
       -- Pass both success and error information to finally block
       local success, finally_result = pcall(f, result)

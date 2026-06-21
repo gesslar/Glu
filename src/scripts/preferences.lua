@@ -6,11 +6,11 @@ local PreferencesClass = Glu.glass.register({
     --- Loads preferences from a file. If a package name is provided, it will be
     --- used to construct the path. Otherwise, the file will be loaded from the
     --- profile directory.
-    --- @param pkg string|nil - The package name. (Optional. Default is nil.)
-    --- @param file string - The file name.
-    --- @param defaults table - A table of default values for those which are missing.
-    --- @return table - The loaded preferences.
-    --- @example
+    ---@param pkg string|nil The package name. (Optional. Default is nil.)
+    ---@param file string The file name.
+    ---@param defaults table A table of default values for those which are missing.
+    ---@returns table The loaded preferences.
+    ---@example
     --- ```lua
     --- -- Load preferences from the "my_package" package
     --- preferences.load_prefs("my_package", "settings.json", {
@@ -42,10 +42,10 @@ local PreferencesClass = Glu.glass.register({
     --- Saves preferences to a file. If a package name is provided, it will be
     --- used to construct the path. Otherwise, the file will be saved to the
     --- profile directory.
-    --- @param pkg string|nil - The package name. (Optional. Default is nil.)
-    --- @param file string - The file name.
-    --- @param prefs table - The preferences to save.
-    --- @example
+    ---@param pkg string|nil The package name. (Optional. Default is nil.)
+    ---@param file string The file name.
+    ---@param prefs table The preferences to save.
+    ---@example
     --- ```lua
     --- preferences.save_prefs("my_package", "settings.json", {
     ---   default_value = 1,

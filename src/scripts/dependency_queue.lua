@@ -5,6 +5,13 @@ local DependencyQueueClass = Glu.glass.register({
   call = "new_dependency_queue",
   dependencies = { "queue", "table", },
   setup = function(___, self)
+    --- Builds a queue that installs any of the given Mudlet packages that are not already installed.
+    --- Filters out already-installed packages, wires up sysInstall and sysDownloadError event
+    --- handlers, and invokes the callback with success and a message when finished.
+    ---
+    ---@param packages table List of package descriptors, each a {name, url} table.
+    ---@param cb function Callback called with a success boolean and a message string when finished.
+    ---@returns object The dependency queue object.
     function self.new_dependency_queue(packages, cb)
       local installed = getPackages()
       local not_installed = table.n_filter(packages, function(package)
@@ -58,6 +65,8 @@ local DependencyQueueClass = Glu.glass.register({
         end
       )
 
+      --- Removes the registered event handlers and tears down the queue.
+      --- Deletes the named sysInstall and sysDownloadError handlers and clears the handler name and queue.
       function self.clean_up()
         deleteNamedEventHandler("glu", self.handler_name)
         deleteNamedEventHandler("glu", self.handler_name .. "_download_error")
@@ -65,6 +74,11 @@ local DependencyQueueClass = Glu.glass.register({
         self.queue = nil
       end
 
+      --- Begins executing the queue.
+      --- Executes the queue if it exists, otherwise returns a not-found error.
+      ---
+      ---@returns any|nil The result of the queue execution, or nil when the queue is not found.
+      ---@returns string? The error message "Queue not found" when the queue is missing.
       function self.start()
         if not self.queue then
           return nil, "Queue not found"
