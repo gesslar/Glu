@@ -7,9 +7,10 @@ local FuncClass = Glu.glass.register({
       ___.v.type(func, "function", 1, false)
       ___.v.type(delay, "number", 2, false)
 
+      local args = { ... }
       ---@diagnostic disable-next-line: return-type-mismatch
-      return tempTimer(delay, function(...)
-        func(...)
+      return tempTimer(delay, function()
+        func(unpack(args))
       end)
     end
 
@@ -38,15 +39,16 @@ local FuncClass = Glu.glass.register({
       interval = interval or 1
       times = times or 1
 
+      local args = { ... }
       local count = 0
-      local function _repeat(...)
+      local function _repeat()
         if count < times then
-          func(...)
+          func(unpack(args))
           count = count + 1
-          tempTimer(interval, _repeat, ...)
+          tempTimer(interval, _repeat)
         end
       end
-      _repeat(...)
+      _repeat()
     end
   end
 })

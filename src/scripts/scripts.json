@@ -26,12 +26,6 @@
   {
     "isActive": "yes",
     "isFolder": "no",
-    "name": "command_queue",
-    "script": ""
-  },
-  {
-    "isActive": "yes",
-    "isFolder": "no",
     "name": "date",
     "script": ""
   },
@@ -117,18 +111,6 @@
     "isActive": "yes",
     "isFolder": "no",
     "name": "table",
-    "script": ""
-  },
-  {
-    "isActive": "yes",
-    "isFolder": "no",
-    "name": "test",
-    "script": ""
-  },
-  {
-    "isActive": "yes",
-    "isFolder": "no",
-    "name": "test_runner",
     "script": ""
   },
   {

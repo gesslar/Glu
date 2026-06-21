@@ -25,13 +25,16 @@ local PreferencesClass = Glu.glass.register({
 
       local path = getMudletHomeDir() .. "/" .. (pkg and pkg .. "/" or "") .. file
 
+      -- Always merge onto a copy of the defaults so the caller's defaults table
+      -- is never mutated. Mutating it aliases the returned prefs to the caller's
+      -- defaults, which silently corrupts any later "fall back to defaults" logic.
       if not io.exists(path) then
-        return defaults
+        return table.deepcopy(defaults)
       end
 
       local prefs = {}
       table.load(path, prefs)
-      prefs = table.update(defaults, prefs)
+      prefs = table.update(table.deepcopy(defaults), prefs)
 
       return prefs or defaults
     end

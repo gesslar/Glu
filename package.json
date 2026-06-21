@@ -1,23 +1,37 @@
 {
   "name": "glu",
-  "version": "1.20.0",
+  "version": "2.0.0",
   "description": "![Y2K Compliant](https://img.shields.io/badge/Y2K-Compliant-success?style=flat&logo=data:...)",
-  "main": "index.js",
   "scripts": {
     "build": "(\nset -e pipefail\nnpx @gesslar/muddy\nnpm run build:single\nnpm run build:min\n)",
     "build:single": "python unify.py src/scripts build/Glu-single.lua",
     "build:min": "python unify.py src/scripts build/tmp/Glu-unified.lua && python mini.py build/tmp/Glu-unified.lua build/Glu-min.lua",
     "clean": "rm -rf build/Glu-*.lua build/filtered build/tmp",
-    "release": "gh workflow run release.yml",
-    "docs": "gh workflow run wiki_documentation.yml",
-    "watch": "npx @gesslar/muddy -w",
     "test": "docker run --rm -v \"$PWD\":/workspace gesslardev/mudlet-busted",
-    "docker:update": "docker pull gesslardev/mudlet-busted"
+    "test:tree": "docker run --rm -e BUSTED_OUTPUT=treeOutput -v \"$PWD\":/workspace gesslardev/mudlet-busted",
+    "docker:update": "docker pull gesslardev/mudlet-busted",
+    "major": "npx @gesslar/muddy version major",
+    "minor": "npx @gesslar/muddy version minor",
+    "patch": "npx @gesslar/muddy version patch"
   },
-  "keywords": [],
-  "author": "gesslar",
+  "keywords": [
+    "mudlet",
+    "lua",
+    "yummy"
+  ],
+  "author": {
+    "name": "gesslar"
+  },
   "license": "0BSD",
   "devDependencies": {
-    "@gesslar/bedoc": "^1.11.0"
-  }
+    "@gesslar/bedoc": "^1.11.0",
+    "@gesslar/muddy": "^2.2.2"
+  },
+  "files": [
+    "README.md",
+    "mfile",
+    "src/scripts",
+    "src/resources",
+    "!src/resources/test"
+  ]
 }
