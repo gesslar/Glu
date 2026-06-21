@@ -17,7 +17,7 @@ local TryClass = Glu.glass.register({
     ---
     ---@param f function The function to execute.
     ---@param ... any Arguments passed to the function.
-    ---@returns object The new try object for chaining.
+    ---@return object try The new try object for chaining.
     ---@example
     --- ```lua
     --- try.clone(function() error("boom") end):catch(function(e) end)
@@ -36,7 +36,7 @@ local TryClass = Glu.glass.register({
     ---
     ---@param f function The function to execute.
     ---@param ... any Arguments passed to the function.
-    ---@returns object The try object for chaining.
+    ---@return object self The try object for chaining.
     ---@example
     --- ```lua
     --- try.try(function() return 42 end):catch(function(e) end)
@@ -72,7 +72,7 @@ local TryClass = Glu.glass.register({
     --- is stored in the catch result.
     ---
     ---@param f function The handler to run with the try result.
-    ---@returns object The try object for chaining.
+    ---@return object self The try object for chaining.
     ---@example
     --- ```lua
     --- try.clone(function() error("boom") end):catch(function(e) print(e.error) end)
@@ -102,7 +102,7 @@ local TryClass = Glu.glass.register({
     --- that error is raised.
     ---
     ---@param f function The function to always run.
-    ---@returns object The try object for chaining.
+    ---@return object self The try object for chaining.
     ---@example
     --- ```lua
     --- try.clone(function() error("boom") end):finally(function(r) end)

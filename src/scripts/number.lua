@@ -7,7 +7,7 @@ local NumberClass = Glu.glass.register({
     ---
     ---@param num number The number to round.
     ---@param digits number The number of digits to round to. (Optional. Default is 0.)
-    ---@returns number The rounded number.
+    ---@return number rounded The rounded number.
     ---@example
     --- ```lua
     --- number.round(3.14159, 2)
@@ -27,7 +27,7 @@ local NumberClass = Glu.glass.register({
     ---@param num number The number to clamp.
     ---@param min number The minimum allowed value.
     ---@param max number The maximum allowed value.
-    ---@returns number The clamped number.
+    ---@return number clamped The clamped number.
     ---@example
     --- ```lua
     --- number.clamp(10, 1, 100)
@@ -45,7 +45,7 @@ local NumberClass = Glu.glass.register({
     ---@param a number The starting value.
     ---@param b number The ending value.
     ---@param t number The interpolation factor (between 0 and 1).
-    ---@returns number The interpolated value.
+    ---@return number interpolated The interpolated value.
     ---@example
     --- ```lua
     --- number.lerp(0, 100, 0.5)
@@ -64,7 +64,7 @@ local NumberClass = Glu.glass.register({
     ---@param start number The starting value.
     ---@param end_val number The ending value.
     ---@param t number The interpolation factor (between 0 and 1).
-    ---@returns number The interpolated value.
+    ---@return number interpolated The interpolated value.
     ---@example
     --- ```lua
     --- number.lerp_smooth(0, 100, 0.5)
@@ -85,7 +85,7 @@ local NumberClass = Glu.glass.register({
     ---@param start number The starting value.
     ---@param end_val number The ending value.
     ---@param t number The interpolation factor (between 0 and 1).
-    ---@returns number The interpolated value.
+    ---@return number interpolated The interpolated value.
     ---@example
     --- ```lua
     function self.lerp_smoother(start, end_val, t)
@@ -103,7 +103,7 @@ local NumberClass = Glu.glass.register({
     ---@param start number The starting value.
     ---@param end_val number The target value.
     ---@param t number The interpolation factor (between 0 and 1).
-    ---@returns number The eased value.
+    ---@return number eased The eased value.
     ---@example
     --- ```lua
     function self.lerp_ease_in(start, end_val, t)
@@ -121,7 +121,7 @@ local NumberClass = Glu.glass.register({
     ---@param start number The starting value.
     ---@param end_val number The target value.
     ---@param t number The interpolation factor (between 0 and 1).
-    ---@returns number The eased value.
+    ---@return number eased The eased value.
     ---@example
     --- ```lua
     function self.lerp_ease_out(start, end_val, t)
@@ -141,7 +141,7 @@ local NumberClass = Glu.glass.register({
     ---@param in_max number The maximum of the input range.
     ---@param out_min number The minimum of the output range.
     ---@param out_max number The maximum of the output range.
-    ---@returns number The mapped number.
+    ---@return number mapped The mapped number.
     ---@example
     --- ```lua
     --- number.map(50, 0, 100, 0, 100)
@@ -159,7 +159,7 @@ local NumberClass = Glu.glass.register({
 
     --- Tests a number to see if it is positive, negative, or zero.
     ---@param num number The number to check.
-    ---@returns boolean True if the number is positive, false otherwise.
+    ---@return boolean is_positive True if the number is positive, false otherwise.
     ---@example
     --- ```lua
     --- number.positive(10)
@@ -175,7 +175,7 @@ local NumberClass = Glu.glass.register({
     ---@param a number The first number.
     ---@param b number The second number.
     ---@param percent_tolerance number The percentage allowed difference (default is 5%).
-    ---@returns boolean True if the numbers are approximately equal, false otherwise.
+    ---@return boolean ok True if the numbers are approximately equal, false otherwise.
     ---@example
     --- ```lua
     --- number.is_approximate(10, 11, 10)
@@ -193,7 +193,7 @@ local NumberClass = Glu.glass.register({
 
     --- Returns the minimum value in a list of numbers or a table.
     ---@param ... number|table[] Either a list of numbers or a single table of numbers.
-    ---@returns number The minimum value.
+    ---@return number result The minimum value.
     ---@example
     --- ```lua
     --- number.min(1, 2, 3)
@@ -214,7 +214,7 @@ local NumberClass = Glu.glass.register({
 
     --- Returns the maximum value in a list of numbers or a table of numbers.
     ---@param ... number|number[] Either a list of numbers or a single table of numbers.
-    ---@returns number The maximum value.
+    ---@return number result The maximum value.
     ---@example
     --- ```lua
     --- number.max(1, 2, 3)
@@ -235,7 +235,7 @@ local NumberClass = Glu.glass.register({
 
     --- Sums a list of numbers.
     ---@param ... number[] The numbers to sum.
-    ---@returns number The sum of the numbers.
+    ---@return number sum The sum of the numbers.
     ---@example
     --- ```lua
     --- number.sum(1, 2, 3)
@@ -250,7 +250,7 @@ local NumberClass = Glu.glass.register({
     --- Returns a random number between a minimum and maximum value.
     ---@param min number The minimum value.
     ---@param max number The maximum value.
-    ---@returns number The random number.
+    ---@return number random The random number.
     ---@example
     --- ```lua
     --- number.random_clamp(0, 100)
@@ -267,7 +267,7 @@ local NumberClass = Glu.glass.register({
     ---@param num number The number to check
     ---@param min number The minimum value
     ---@param max number The maximum value
-    ---@returns boolean True if the number is between min and max
+    ---@return boolean is_between True if the number is between min and max
     ---@example
     --- ```lua
     --- number.is_between(5, 1, 10)
@@ -282,7 +282,7 @@ local NumberClass = Glu.glass.register({
     end
 
     ---@param num number The number to check
-    ---@returns number The sign (-1, 0, or 1)
+    ---@return number sign The sign (-1, 0, or 1)
     ---@example
     --- ```lua
     --- number.sign(-5)
@@ -296,7 +296,7 @@ local NumberClass = Glu.glass.register({
 
     --- Calculates the average (mean) of a list of numbers
     ---@param ... number|number[] Either a list of numbers or a single table of numbers
-    ---@returns number The average value
+    ---@return number average The average value
     ---@example
     --- ```lua
     --- number.average(1, 2, 3)
@@ -311,7 +311,7 @@ local NumberClass = Glu.glass.register({
     --- Constrains a number to a certain precision
     ---@param num number The number to constrain
     ---@param precision number The precision (e.g., 0.1, 0.01, etc.)
-    ---@returns number The constrained number
+    ---@return number constrained The constrained number
     ---@example
     --- ```lua
     --- number.constrain(3.14159, 0.01)
@@ -328,7 +328,7 @@ local NumberClass = Glu.glass.register({
     ---@param value number The current value
     ---@param total number The total value
     ---@param round_digits? number Optional number of decimal places to round to
-    ---@returns number The percentage
+    ---@return number result The percentage
     ---@example
     --- ```lua
     --- number.percent_of(25, 20)
@@ -350,7 +350,7 @@ local NumberClass = Glu.glass.register({
     ---@param percent number The percentage
     ---@param total number The total value
     ---@param round_digits? number Optional number of decimal places to round to
-    ---@returns number The resulting value
+    ---@return number result The resulting value
     ---@example
     --- ```lua
     --- number.percent(25, 100)
@@ -374,7 +374,7 @@ local NumberClass = Glu.glass.register({
     ---@param num number The number to normalize
     ---@param min number The minimum value of the range
     ---@param max number The maximum value of the range
-    ---@returns number The normalized value (0-1)
+    ---@return number normalized The normalized value (0-1)
     ---@example
     --- ```lua
     --- number.normalize(50, 0, 100)
@@ -386,7 +386,7 @@ local NumberClass = Glu.glass.register({
 
     --- Calculates the arithmetic mean of a list of numbers
     ---@param ... number|number[] Either a list of numbers or a single table of numbers
-    ---@returns number The arithmetic mean
+    ---@return number mean The arithmetic mean
     ---@example
     --- ```lua
     --- number.mean(1, 2, 3)

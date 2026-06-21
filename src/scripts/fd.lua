@@ -15,8 +15,8 @@ local FdClass = Glu.glass.register({
     ---
     ---@param path string The path to split.
     ---@param dir_required boolean Whether the directory is required (Optional. Default is false).
-    ---@returns string|nil The directory portion, or nil if the path is invalid.
-    ---@returns string|nil The file portion, or nil if the path is invalid.
+    ---@return string|nil dir The directory portion, or nil if the path is invalid.
+    ---@return string|nil file The file portion, or nil if the path is invalid.
     function self.dir_file(path, dir_required)
       ___.v.type(path, "string", 1, false)
       ___.v.type(dir_required, "boolean", 2, true)
@@ -51,9 +51,9 @@ local FdClass = Glu.glass.register({
     --- ```
     ---
     ---@param path string The path to split.
-    ---@returns string|nil The root portion, or nil if the path is invalid.
-    ---@returns string|nil The directory portion, or nil if the path is invalid.
-    ---@returns string|nil The file portion, or nil if the path is invalid.
+    ---@return string|nil root The root portion, or nil if the path is invalid.
+    ---@return string|nil dir The directory portion, or nil if the path is invalid.
+    ---@return string|nil file The file portion, or nil if the path is invalid.
     function self.root_dir_file(path)
       ___.v.type(path, "string", 1, false)
 
@@ -69,7 +69,7 @@ local FdClass = Glu.glass.register({
 
     --- Checks if a file exists.
     ---@param path string The path to check.
-    ---@returns boolean Whether the file exists.
+    ---@return boolean exists Whether the file exists.
     ---@example
     --- ```lua
     --- fd.file_exists("path/to/file.txt")
@@ -86,7 +86,7 @@ local FdClass = Glu.glass.register({
 
     --- Checks if a directory exists.
     ---@param path string The path to check.
-    ---@returns boolean Whether the directory exists.
+    ---@return boolean exists Whether the directory exists.
     ---@example
     --- ```lua
     --- fd.dir_exists("path/to/directory")
@@ -104,9 +104,9 @@ local FdClass = Glu.glass.register({
     --- Reads a file.
     ---@param path string The path to the file.
     ---@param binary boolean Whether the file is binary (default false).
-    ---@returns string|nil The file contents, or nil on failure.
-    ---@returns string|nil The error message, if the read failed.
-    ---@returns number|nil The error code, if the read failed.
+    ---@return string|nil data The file contents, or nil on failure.
+    ---@return string|nil error The error message, if the read failed.
+    ---@return number|nil code The error code, if the read failed.
     ---@example
     --- ```lua
     --- fd.read_file("path/to/file.txt")
@@ -130,7 +130,7 @@ local FdClass = Glu.glass.register({
     ---@param data string The data to write to the file.
     ---@param overwrite boolean Whether to overwrite the file (default false).
     ---@param binary boolean Whether the file is binary (default false).
-    ---@returns string|table The path to the file or nil, a table with the error and code, or the attributes of the file.
+    ---@return string|table path The path to the file or nil, a table with the error and code, or the attributes of the file.
     ---@example
     --- ```lua
     --- fd.write_file("path/to/file.txt", "contents of file")
@@ -158,8 +158,8 @@ local FdClass = Glu.glass.register({
 
     --- Fixes a path to use forward slashes.
     ---@param path string The path to fix.
-    ---@returns string The fixed path.
-    ---@returns number The number of replacements made.
+    ---@return string path The fixed path.
+    ---@return number num The number of replacements made.
     ---@example
     --- ```lua
     --- fd.fix_path("path\\to\\file.txt")
@@ -180,7 +180,7 @@ local FdClass = Glu.glass.register({
     --- Checks for a forward slash first, then a backslash, returning the first found.
     ---
     ---@param path string The path to inspect.
-    ---@returns string|nil The path separator ("/" or "\\"), or nil if none is found.
+    ---@return string|nil sep The path separator ("/" or "\\"), or nil if none is found.
     function self.determine_path_separator(path)
       ___.v.type(path, "string", 1, false)
 
@@ -195,7 +195,7 @@ local FdClass = Glu.glass.register({
     --- This does not verify that the path exists on disk.
     ---
     ---@param path string The path string to check.
-    ---@returns boolean Whether the string contains a recognised path separator.
+    ---@return boolean is_valid Whether the string contains a recognised path separator.
     function self.valid_path_string(path)
       ___.v.type(path, "string", 1, false)
 
@@ -207,7 +207,7 @@ local FdClass = Glu.glass.register({
     --- single path string or a table of path strings.
     ---
     ---@param path string|table The path string, or table of path strings, to check.
-    ---@returns boolean Whether the argument is a valid path or table of paths.
+    ---@return boolean is_valid Whether the argument is a valid path or table of paths.
     function self.valid_path_table_or_string(path)
       path = ___.table.n_cast(path)
 
@@ -225,7 +225,7 @@ local FdClass = Glu.glass.register({
     --- Checks whether a path refers to an existing directory or file.
     ---
     ---@param path string The path to check.
-    ---@returns boolean Whether the path exists as a directory or a file.
+    ---@return boolean exists Whether the path exists as a directory or a file.
     function self.valid_path(path)
       ___.v.type(path, "string", 1, false)
 
@@ -236,7 +236,7 @@ local FdClass = Glu.glass.register({
     --- Each element must be a path that exists as either a directory or a file.
     ---
     ---@param paths table The uniform table of path strings to check.
-    ---@returns boolean Whether all paths in the table are valid existing paths.
+    ---@return boolean is_valid Whether all paths in the table are valid existing paths.
     function self.valid_paths(paths)
       ___.v.n_uniform(paths, "string", 1, false)
 
@@ -247,7 +247,7 @@ local FdClass = Glu.glass.register({
     --- Each element must be a path that exists as either a directory or a file.
     ---
     ---@param paths table The indexed table of path strings to check.
-    ---@returns boolean Whether all paths in the table are valid existing paths.
+    ---@return boolean is_valid Whether all paths in the table are valid existing paths.
     function self.valid_path_table(paths)
       ___.v.indexed(paths, "table", 1, false)
 
@@ -256,9 +256,9 @@ local FdClass = Glu.glass.register({
 
     --- Ensures that a directory exists.
     ---@param path string The path to the directory.
-    ---@returns table|nil A table of created directories, or nil on failure.
-    ---@returns string|nil The error message, if the operation failed.
-    ---@returns number|nil The error code, if the operation failed.
+    ---@return table|nil created A table of created directories, or nil on failure.
+    ---@return string|nil err The error message, if the operation failed.
+    ---@return number|nil code The error code, if the operation failed.
     ---@example
     --- ```lua
     --- fd.assure_dir("path/to/directory")
@@ -295,7 +295,7 @@ local FdClass = Glu.glass.register({
 
     --- Determines the root of a path.
     ---@param path string The path to determine the root of.
-    ---@returns string|nil The root of the path, or nil if the path is invalid.
+    ---@return string|nil root The root of the path, or nil if the path is invalid.
     ---@example
     --- ```lua
     --- fd.determine_root("c:\\test\\moo")
@@ -316,8 +316,8 @@ local FdClass = Glu.glass.register({
 
     --- Removes a file.
     ---@param path string The path to the file.
-    ---@returns boolean|nil Whether the file was removed, or nil on failure.
-    ---@returns string|nil The error message, if the removal failed.
+    ---@return boolean|nil removed Whether the file was removed, or nil on failure.
+    ---@return string|nil err The error message, if the removal failed.
     ---@example
     --- ```lua
     --- fd.rmfile("path/to/file.txt")
@@ -331,8 +331,8 @@ local FdClass = Glu.glass.register({
 
     --- Removes a directory.
     ---@param path string The path to the directory.
-    ---@returns boolean|nil Whether the directory was removed, or nil on failure.
-    ---@returns string|nil The error message, if the removal failed.
+    ---@return boolean|nil removed Whether the directory was removed, or nil on failure.
+    ---@return string|nil err The error message, if the removal failed.
     ---@example
     --- ```lua
     --- fd.rmdir("path/to/directory")
@@ -346,7 +346,7 @@ local FdClass = Glu.glass.register({
 
     --- Checks if a directory is empty.
     ---@param path string The path to the directory.
-    ---@returns boolean Whether the directory is empty.
+    ---@return boolean is_empty Whether the directory is empty.
     ---@example
     --- ```lua
     --- fd.dir_empty("/path/to/directory")
@@ -359,7 +359,7 @@ local FdClass = Glu.glass.register({
     --- Gets the files in a directory.
     ---@param path string The path to the directory.
     ---@param include_dots boolean Whether to include the "." and ".." directories (default false).
-    ---@returns table A table of files in the directory.
+    ---@return table result A table of files in the directory.
     ---@example
     --- ```lua
     --- fd.get_dir("/path/to/directory")
@@ -394,9 +394,9 @@ local FdClass = Glu.glass.register({
     --- Creates a unique temporary directory under the Mudlet home directory.
     --- The directory is placed at `<MudletHomeDir>/tmp/<id>` and created on disk.
     ---
-    ---@returns string|nil The path to the created temporary directory, or nil on failure.
-    ---@returns string|nil The error message, if creation failed.
-    ---@returns number|nil The error code, if creation failed.
+    ---@return string|nil dir The path to the created temporary directory, or nil on failure.
+    ---@return string|nil err The error message, if creation failed.
+    ---@return number|nil code The error code, if creation failed.
     function self.temp_dir()
       local dir = getMudletHomeDir() .. "/tmp/" .. ___.id()
 

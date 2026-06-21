@@ -305,7 +305,7 @@ if not _G["Glu"] then
     --- Delegates to Glu.glass.register and then instantiates the
     --- glass on this instance so it is immediately available.
     ---@param class_opts table Glass registration options (same as Glu.glass.register)
-    ---@returns table The registered glass class
+    ---@return table glass The registered glass class
     function instance.register(class_opts)
       local is_new = not Glu.has_glass(class_opts.name)
       local glass = Glu.glass.register(class_opts)
@@ -563,7 +563,7 @@ if not _G["Glu"] then
         --- Walks up the parent chain looking for a match against the base class.
         ---
         ---@param base_class table The base class to check against.
-        ---@returns boolean Whether this instance extends the base class.
+        ---@return boolean extends Whether this instance extends the base class.
         function self.extending(base_class)
           local current_instance = self
           while current_instance do

@@ -11,9 +11,9 @@ local DateClass = Glu.glass.register({
     ---
     ---@param seconds number The number of seconds to convert.
     ---@param as_string boolean|nil Whether to return a single formatted string instead of three values. (Optional. Default is false.)
-    ---@returns string The zero-padded hours, or the single formatted string when `as_string` is true.
-    ---@returns string The zero-padded minutes. Not returned when `as_string` is true.
-    ---@returns string The zero-padded seconds. Not returned when `as_string` is true.
+    ---@return string hours The zero-padded hours, or the single formatted string when `as_string` is true.
+    ---@return string minutes The zero-padded minutes. Not returned when `as_string` is true.
+    ---@return string seconds The zero-padded seconds. Not returned when `as_string` is true.
     ---@example
     --- ```lua
     --- date.shms(3661)

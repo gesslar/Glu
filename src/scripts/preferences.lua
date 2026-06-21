@@ -9,7 +9,7 @@ local PreferencesClass = Glu.glass.register({
     ---@param pkg string|nil The package name. (Optional. Default is nil.)
     ---@param file string The file name.
     ---@param defaults table A table of default values for those which are missing.
-    ---@returns table The loaded preferences.
+    ---@return table prefs The loaded preferences.
     ---@example
     --- ```lua
     --- -- Load preferences from the "my_package" package

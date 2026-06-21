@@ -6,7 +6,7 @@ local StringClass = Glu.glass.register({
     --- Capitalizes the first character of a string.
     ---
     ---@param str string The string to capitalize.
-    ---@returns string The capitalized string.
+    ---@return string result The capitalized string.
     ---@example
     --- ```lua
     --- string.capitalize("hello")
@@ -23,7 +23,7 @@ local StringClass = Glu.glass.register({
     --- Trims whitespace from the beginning and end of a string.
     ---
     ---@param str string The string to trim.
-    ---@returns string The trimmed string.
+    ---@return string trimmed The trimmed string.
     ---@example
     --- ```lua
     --- string.trim("  hello  ")
@@ -37,7 +37,7 @@ local StringClass = Glu.glass.register({
     --- Trims whitespace from the left side of a string.
     ---
     ---@param str string The string to trim.
-    ---@returns string The trimmed string.
+    ---@return string trimmed The trimmed string.
     ---@example
     --- ```lua
     --- string.ltrim("  hello  ")
@@ -51,7 +51,7 @@ local StringClass = Glu.glass.register({
     --- Trims whitespace from the right side of a string.
     ---
     ---@param str string The string to trim.
-    ---@returns string The trimmed string.
+    ---@return string trimmed The trimmed string.
     ---@example
     --- ```lua
     --- string.rtrim("  hello  ")
@@ -65,7 +65,7 @@ local StringClass = Glu.glass.register({
     --- Strips line breaks from a string.
     ---
     ---@param str string The string to strip line breaks from.
-    ---@returns string The string with line breaks removed.
+    ---@return string result The string with line breaks removed.
     ---@example
     --- ```lua
     --- string.strip_linebreaks("hello\nworld")
@@ -82,7 +82,7 @@ local StringClass = Glu.glass.register({
     ---@param str string The string to replace occurrences in.
     ---@param pattern string The pattern to replace.
     ---@param replacement string The replacement string.
-    ---@returns string The string with occurrences replaced.
+    ---@return string str The string with occurrences replaced.
     ---@example
     --- ```lua
     --- string.replace("hello world", "o", "a")
@@ -106,7 +106,7 @@ local StringClass = Glu.glass.register({
     ---
     ---@param str string The string to split.
     ---@param delimiter string The regex delimiter to split the string by.
-    ---@returns table The split string.
+    ---@return table parts The split string.
     ---@example
     --- ```lua
     --- string.split("hello world")
@@ -140,7 +140,7 @@ local StringClass = Glu.glass.register({
     ---
     ---@param input string The string to walk over.
     ---@param delimiter string The regex delimiter to split the string by.
-    ---@returns function The iterator function.
+    ---@return function iterator The iterator function.
     ---@example
     --- ```lua
     --- for i, part in string.walk("hello world") do
@@ -172,7 +172,7 @@ local StringClass = Glu.glass.register({
     ---@param number string|number The number to format (number or string)
     ---@param thousands string The thousands separator (optional, defaults to ",")
     ---@param decimal string The decimal separator (optional, defaults to ".")
-    ---@returns string The formatted number
+    ---@return string formatted The formatted number
     function self.format_number(number, thousands, decimal)
       ___.v.type(number, "number|string", 1, false)
       ___.v.type(thousands, "string", 2, true)
@@ -219,7 +219,7 @@ local StringClass = Glu.glass.register({
     ---@param str string The formatted number string.
     ---@param thousands string The thousands separator (optional, defaults to ",").
     ---@param decimal string The decimal separator (optional, defaults to ".").
-    ---@returns number The parsed number.
+    ---@return number number The parsed number.
     ---@example
     --- ```lua
     --- string.parse_formatted_number("1,234,567.89")
@@ -250,7 +250,7 @@ local StringClass = Glu.glass.register({
     ---
     ---@param str string The string to check.
     ---@param start string The pattern to check for.
-    ---@returns boolean Whether the string starts with the pattern.
+    ---@return boolean matched Whether the string starts with the pattern.
     ---@example
     --- ```lua
     --- string.starts_with("hello world", "hello")
@@ -270,7 +270,7 @@ local StringClass = Glu.glass.register({
     ---
     ---@param str string The string to check.
     ---@param ending string The pattern to check for.
-    ---@returns boolean Whether the string ends with the pattern.
+    ---@return boolean matched Whether the string ends with the pattern.
     ---@example
     --- ```lua
     --- string.ends_with("hello world", "world")
@@ -291,7 +291,7 @@ local StringClass = Glu.glass.register({
     ---
     ---@param str string The string to check.
     ---@param pattern string The pattern to check for.
-    ---@returns boolean Whether the string contains the pattern.
+    ---@return boolean matched Whether the string contains the pattern.
     ---@example
     --- ```lua
     --- string.contains("hello world", "world")
@@ -310,7 +310,7 @@ local StringClass = Glu.glass.register({
     ---
     ---@param str string The string to append to.
     ---@param suffix string The suffix to append.
-    ---@returns string The string with the suffix appended.
+    ---@return string result The string with the suffix appended.
     ---@example
     --- ```lua
     --- string.append("hello", " world")
@@ -327,7 +327,7 @@ local StringClass = Glu.glass.register({
     ---
     ---@param str string The string to prepend to.
     ---@param prefix string The prefix to prepend.
-    ---@returns string The string with the prefix prepended.
+    ---@return string result The string with the prefix prepended.
     ---@example
     --- ```lua
     --- string.prepend("world", "hello ")
@@ -345,8 +345,8 @@ local StringClass = Glu.glass.register({
     ---@param patterns table The patterns to search for
     ---@param tokens table The tokens to replace the patterns with
     ---@param default_token string The default token to use if no pattern is found (optional, defaults to "")
-    ---@returns table A table of match results.
-    ---@returns table The list of replacement tokens.
+    ---@return table results A table of match results.
+    ---@return table token_list The list of replacement tokens.
     ---@example
     --- ```lua
     --- string.reg_assoc("hello world", {"hello", "world"}, {"foo", "bar"})
@@ -403,7 +403,7 @@ local StringClass = Glu.glass.register({
     --- Determines whether a single character is an alphabetic letter.
     ---
     ---@param char string The single character to test.
-    ---@returns boolean True if the character is a letter (a-z, A-Z).
+    ---@return boolean is_alpha True if the character is a letter (a-z, A-Z).
     ---@example
     --- ```lua
     --- string.is_alpha("a")
@@ -419,7 +419,7 @@ local StringClass = Glu.glass.register({
     --- Determines whether a single character is a numeric digit.
     ---
     ---@param char string The single character to test.
-    ---@returns boolean True if the character is a digit (0-9).
+    ---@return boolean is_numeric True if the character is a digit (0-9).
     ---@example
     --- ```lua
     --- string.is_numeric("5")
@@ -435,7 +435,7 @@ local StringClass = Glu.glass.register({
     --- Determines whether a single character is alphanumeric.
     ---
     ---@param char string The single character to test.
-    ---@returns boolean True if the character is a letter or digit (a-z, A-Z, 0-9).
+    ---@return boolean is_alphanumeric True if the character is a letter or digit (a-z, A-Z, 0-9).
     ---@example
     --- ```lua
     --- string.is_alphanumeric("a")
@@ -451,7 +451,7 @@ local StringClass = Glu.glass.register({
     --- Determines whether a single character is a whitespace character.
     ---
     ---@param char string The single character to test.
-    ---@returns boolean True if the character is whitespace.
+    ---@return boolean is_whitespace True if the character is whitespace.
     ---@example
     --- ```lua
     --- string.is_whitespace(" ")
@@ -468,7 +468,7 @@ local StringClass = Glu.glass.register({
     --- it is neither alphanumeric nor whitespace.
     ---
     ---@param char string The single character to test.
-    ---@returns boolean True if the character is punctuation.
+    ---@return boolean is_punctuation True if the character is punctuation.
     ---@example
     --- ```lua
     --- string.is_punctuation("!")
@@ -484,7 +484,7 @@ local StringClass = Glu.glass.register({
     --- Determines whether a single character is an uppercase letter.
     ---
     ---@param char string The single character to test.
-    ---@returns boolean True if the character is an uppercase letter (A-Z).
+    ---@return boolean is_uppercase True if the character is an uppercase letter (A-Z).
     ---@example
     --- ```lua
     --- string.is_uppercase("A")
@@ -500,7 +500,7 @@ local StringClass = Glu.glass.register({
     --- Determines whether a single character is a lowercase letter.
     ---
     ---@param char string The single character to test.
-    ---@returns boolean True if the character is a lowercase letter (a-z).
+    ---@return boolean is_lowercase True if the character is a lowercase letter (a-z).
     ---@example
     --- ```lua
     --- string.is_lowercase("a")
@@ -517,7 +517,7 @@ local StringClass = Glu.glass.register({
     --- consecutive digits are grouped together and converted to numbers.
     ---
     ---@param str string The string to split.
-    ---@returns table A table of string and number chunks in their original order.
+    ---@return table result A table of string and number chunks in their original order.
     ---@example
     --- ```lua
     --- string.split_natural("file42name")
@@ -565,7 +565,7 @@ local StringClass = Glu.glass.register({
     ---
     ---@param a string The first string to compare.
     ---@param b string The second string to compare.
-    ---@returns boolean True if `a` sorts before `b` in natural order.
+    ---@return boolean is_before True if `a` sorts before `b` in natural order.
     ---@example
     --- ```lua
     --- string.natural_compare("item2", "item10")
@@ -605,7 +605,7 @@ local StringClass = Glu.glass.register({
     ---
     ---@param str string The string to search within.
     ---@param pattern string The pattern to search for.
-    ---@returns number|nil The starting index of the first match, or nil if not found.
+    ---@return number|nil index The starting index of the first match, or nil if not found.
     ---@example
     --- ```lua
     --- string.index_of("hello world", "world")

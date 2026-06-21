@@ -10,7 +10,7 @@ local GlassLoaderClass = Glu.glass.register({
     --- through the callback. The loaded chunk can optionally be executed.
     ---
     ---@param opts table The options table. Fields: `path` (string) a local file path or http(s) URL, `cb`/`callback` (function, required) invoked with the loaded chunk on success or with (nil, errorMessage) on failure, and `execute` (boolean) whether to immediately execute the loaded chunk.
-    ---@returns boolean|nil Returns `false` and an error message when no callback is provided; otherwise returns nothing, as results are delivered through the callback.
+    ---@return boolean|nil ok Returns `false` and an error message when no callback is provided; otherwise returns nothing, as results are delivered through the callback.
     ---@example
     --- ```lua
     --- glass_loader.load_glass({path = "https://example.com/thing.lua", cb = function(g, err) end})

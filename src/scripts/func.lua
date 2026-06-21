@@ -9,7 +9,7 @@ local FuncClass = Glu.glass.register({
     ---@param func function The function to run after the delay.
     ---@param delay number The delay in seconds before the function runs.
     ---@param ... any Additional arguments passed to the function when it runs.
-    ---@returns number The timer id returned by tempTimer.
+    ---@return number timer_id The timer id returned by tempTimer.
     ---@example
     --- ```lua
     --- func.delay(function() echo("hi") end, 5)
@@ -30,7 +30,7 @@ local FuncClass = Glu.glass.register({
     ---
     ---@param func function The function to be wrapped.
     ---@param wrapper function The wrapper function, which receives `func` followed by the call arguments.
-    ---@returns function The wrapped function.
+    ---@return function wrapped The wrapped function.
     function self.wrap(func, wrapper)
       --- ```lua
       --- local becho = function.wrap(cecho, function(func, text)
@@ -55,7 +55,7 @@ local FuncClass = Glu.glass.register({
     ---@param interval number The interval in seconds between runs. Defaults to 1.
     ---@param times number The number of times to run the function. Defaults to 1.
     ---@param ... any Additional arguments passed to the function on each run.
-    ---@returns nil
+    ---@return nil result
     ---@example
     --- ```lua
     --- func.repeater(function() echo("tick\n") end, 2, 3)

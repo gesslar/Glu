@@ -11,7 +11,7 @@ local DependencyQueueClass = Glu.glass.register({
     ---
     ---@param packages table List of package descriptors, each a {name, url} table.
     ---@param cb function Callback called with a success boolean and a message string when finished.
-    ---@returns object The dependency queue object.
+    ---@return object self The dependency queue object.
     function self.new_dependency_queue(packages, cb)
       local installed = getPackages()
       local not_installed = table.n_filter(packages, function(package)
@@ -77,8 +77,8 @@ local DependencyQueueClass = Glu.glass.register({
       --- Begins executing the queue.
       --- Executes the queue if it exists, otherwise returns a not-found error.
       ---
-      ---@returns any|nil The result of the queue execution, or nil when the queue is not found.
-      ---@returns string? The error message "Queue not found" when the queue is missing.
+      ---@return any|nil result The result of the queue execution, or nil when the queue is not found.
+      ---@return string? err The error message "Queue not found" when the queue is missing.
       function self.start()
         if not self.queue then
           return nil, "Queue not found"

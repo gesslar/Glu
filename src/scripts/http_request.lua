@@ -12,7 +12,7 @@ local HttpRequestClass = Glu.glass.register({
     --- `http_response`, writes the body to `saveTo` when requested, invokes the
     --- callback, and cleans up its event handlers.
     ---
-    ---@returns object The request object.
+    ---@return object request The request object.
     ---@example
     --- ```lua
     --- request.execute()

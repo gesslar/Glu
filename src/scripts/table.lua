@@ -8,7 +8,7 @@ local TableClass = Glu.glass.register({
     --- collected into a new table.
     ---
     ---@param ... any The value(s) to cast into an indexed table.
-    ---@returns table The resulting indexed table.
+    ---@return table result The resulting indexed table.
     ---@example
     --- ```lua
     --- table.n_cast(1, 2, 3)
@@ -30,7 +30,7 @@ local TableClass = Glu.glass.register({
     ---@param t table The table to map over.
     ---@param fn function The function called as fn(key, value, ...) for each element.
     ---@param ... any Additional arguments passed to the mapping function.
-    ---@returns table A new table with the mapped values.
+    ---@return table result A new table with the mapped values.
     ---@example
     --- ```lua
     --- table.map({1, 2, 3}, function(k, v) return v * 2 end)
@@ -51,7 +51,7 @@ local TableClass = Glu.glass.register({
     --- discarding the keys.
     ---
     ---@param t table The table whose values to collect.
-    ---@returns table An indexed table of the values.
+    ---@return table result An indexed table of the values.
     ---@example
     --- ```lua
     --- table.values({a = 1, b = 2})
@@ -72,7 +72,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param t table The indexed table to check.
     ---@param typ string|nil The type to check against. (Optional. Default is the type of the first element.)
-    ---@returns boolean True if all elements are of the given type, otherwise false.
+    ---@return boolean is_uniform True if all elements are of the given type, otherwise false.
     ---@example
     --- ```lua
     --- table.n_uniform({1, 2, 3})
@@ -98,7 +98,7 @@ local TableClass = Glu.glass.register({
     --- given indexed table, preserving their first-seen order.
     ---
     ---@param t table The indexed table to deduplicate.
-    ---@returns table A new indexed table of distinct values.
+    ---@return table result A new indexed table of distinct values.
     ---@example
     --- ```lua
     --- table.n_distinct({1, 2, 2, 3, 3, 3})
@@ -120,7 +120,7 @@ local TableClass = Glu.glass.register({
     --- Removes and returns the last element of an indexed table.
     ---
     ---@param t table The indexed table to pop from.
-    ---@returns any The removed last element.
+    ---@return any removed The removed last element.
     ---@example
     --- ```lua
     --- table.pop({1, 2, 3})
@@ -136,7 +136,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param t table The indexed table to push onto.
     ---@param v any The value to append.
-    ---@returns number The new length of the table.
+    ---@return number length The new length of the table.
     ---@example
     --- ```lua
     --- table.push({1, 2}, 3)
@@ -156,7 +156,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param t table The indexed table to unshift onto.
     ---@param v any The value to insert at the front.
-    ---@returns number The new length of the table.
+    ---@return number length The new length of the table.
     ---@example
     --- ```lua
     --- table.unshift({2, 3}, 1)
@@ -175,7 +175,7 @@ local TableClass = Glu.glass.register({
     --- remaining elements down.
     ---
     ---@param t table The indexed table to shift from.
-    ---@returns any The removed first element.
+    ---@return any removed The removed first element.
     ---@example
     --- ```lua
     --- table.shift({1, 2, 3})
@@ -193,7 +193,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param source table An indexed, non-empty table whose values become the keys.
     ---@param spec any A parallel indexed table, a function called as spec(index, key), or a constant value.
-    ---@returns table The resulting associative table.
+    ---@return table result The resulting associative table.
     ---@example
     --- ```lua
     --- table.allocate({"a", "b"}, {1, 2})
@@ -234,7 +234,7 @@ local TableClass = Glu.glass.register({
     --- integers starting at 1.
     ---
     ---@param t table The table to check.
-    ---@returns boolean True if the table is indexed, otherwise false.
+    ---@return boolean is_indexed True if the table is indexed, otherwise false.
     ---@example
     --- ```lua
     --- table.indexed({1, 2, 3})
@@ -257,7 +257,7 @@ local TableClass = Glu.glass.register({
     --- key that is not a positive integer.
     ---
     ---@param t table The table to check.
-    ---@returns boolean True if the table is associative, otherwise false.
+    ---@return boolean is_associative True if the table is associative, otherwise false.
     ---@example
     --- ```lua
     --- table.associative({a = 1})
@@ -280,7 +280,7 @@ local TableClass = Glu.glass.register({
     ---@param t table The indexed table to reduce.
     ---@param fn function The reducer called as fn(accumulator, value, key).
     ---@param initial any The initial value of the accumulator.
-    ---@returns any The final accumulated value.
+    ---@return any acc The final accumulated value.
     ---@example
     --- ```lua
     --- table.reduce({1, 2, 3}, function(acc, v) return acc + v end, 0)
@@ -304,7 +304,7 @@ local TableClass = Glu.glass.register({
     ---@param t table The indexed table to slice.
     ---@param start number The starting index (1-based).
     ---@param stop number|nil The ending index. (Optional. Default is the length of the table.)
-    ---@returns table A new indexed table with the sliced elements.
+    ---@return table result A new indexed table with the sliced elements.
     ---@example
     --- ```lua
     --- table.slice({1, 2, 3, 4}, 2, 3)
@@ -335,8 +335,8 @@ local TableClass = Glu.glass.register({
     ---@param t table The indexed table to remove from.
     ---@param start number The starting index (1-based) of the range to remove.
     ---@param stop number|nil The ending index of the range. (Optional. Default is start.)
-    ---@returns table The modified table with the range removed.
-    ---@returns table An indexed table of the removed elements.
+    ---@return table t The modified table with the range removed.
+    ---@return table snipped An indexed table of the removed elements.
     ---@example
     --- ```lua
     --- table.remove({1, 2, 3, 4}, 2, 3)
@@ -364,7 +364,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param t table The indexed table to chunk.
     ---@param size number The maximum size of each chunk.
-    ---@returns table A table of chunk tables.
+    ---@return table result A table of chunk tables.
     ---@example
     --- ```lua
     --- table.chunk({1, 2, 3, 4, 5}, 2)
@@ -386,7 +386,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The indexed table to append to.
     ---@param ... any The values or tables to append.
-    ---@returns table The modified table.
+    ---@return table tbl The modified table.
     ---@example
     --- ```lua
     --- table.concat({1, 2}, {3, 4}, 5)
@@ -414,7 +414,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The indexed table to drop from.
     ---@param n number The number of elements to drop from the start.
-    ---@returns table A new indexed table without the first n elements.
+    ---@return table result A new indexed table without the first n elements.
     ---@example
     --- ```lua
     --- table.drop({1, 2, 3, 4}, 2)
@@ -431,7 +431,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The indexed table to drop from.
     ---@param n number The number of elements to drop from the end.
-    ---@returns table A new indexed table without the last n elements.
+    ---@return table result A new indexed table without the last n elements.
     ---@example
     --- ```lua
     --- table.drop_right({1, 2, 3, 4}, 2)
@@ -450,7 +450,7 @@ local TableClass = Glu.glass.register({
     ---@param value any The value to fill with.
     ---@param start number|nil The starting index of the range. (Optional. Default is 1.)
     ---@param stop number|nil The ending index of the range. (Optional. Default is the length of the table.)
-    ---@returns table The modified table.
+    ---@return table tbl The modified table.
     ---@example
     --- ```lua
     --- table.fill({1, 2, 3, 4}, 0, 2, 3)
@@ -475,7 +475,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The indexed table to search.
     ---@param fn function The predicate called as fn(index, value).
-    ---@returns number|nil The index of the first matching element, or nil.
+    ---@return number|nil index The index of the first matching element, or nil.
     ---@example
     --- ```lua
     --- table.find({1, 2, 3}, function(i, v) return v == 2 end)
@@ -498,7 +498,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The indexed table to search.
     ---@param fn function The predicate called as fn(index, value).
-    ---@returns number|nil The index of the last matching element, or nil.
+    ---@return number|nil index The index of the last matching element, or nil.
     ---@example
     --- ```lua
     --- table.find_last({1, 2, 2, 3}, function(i, v) return v == 2 end)
@@ -520,7 +520,7 @@ local TableClass = Glu.glass.register({
     --- the result.
     ---
     ---@param tbl table The indexed table to flatten.
-    ---@returns table A new indexed table flattened one level.
+    ---@return table result A new indexed table flattened one level.
     ---@example
     --- ```lua
     --- table.flatten({1, {2, 3}, 4})
@@ -545,7 +545,7 @@ local TableClass = Glu.glass.register({
     --- depth into the result.
     ---
     ---@param tbl table The indexed table to flatten.
-    ---@returns table A new fully flattened indexed table.
+    ---@return table result A new fully flattened indexed table.
     ---@example
     --- ```lua
     --- table.flatten_deeply({1, {2, {3, 4}}})
@@ -569,7 +569,7 @@ local TableClass = Glu.glass.register({
     --- Returns a new indexed table containing all but the last element.
     ---
     ---@param tbl table The indexed table to take the initial elements from.
-    ---@returns table A new indexed table without the last element.
+    ---@return table result A new indexed table without the last element.
     ---@example
     --- ```lua
     --- table.initial({1, 2, 3})
@@ -586,7 +586,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The indexed table to pull values from.
     ---@param ... any The values to remove.
-    ---@returns table The modified table.
+    ---@return table tbl The modified table.
     ---@example
     --- ```lua
     --- table.pull({1, 2, 3, 2, 1}, 2)
@@ -615,7 +615,7 @@ local TableClass = Glu.glass.register({
     --- Reverses the order of the elements of an indexed table in place.
     ---
     ---@param tbl table The indexed table to reverse.
-    ---@returns table The reversed table.
+    ---@return table tbl The reversed table.
     ---@example
     --- ```lua
     --- table.reverse({1, 2, 3})
@@ -635,7 +635,7 @@ local TableClass = Glu.glass.register({
     --- first occurrence of each value.
     ---
     ---@param tbl table The indexed table to deduplicate.
-    ---@returns table The modified table with duplicates removed.
+    ---@return table tbl The modified table with duplicates removed.
     ---@example
     --- ```lua
     --- table.uniq({1, 2, 2, 3, 1})
@@ -668,7 +668,7 @@ local TableClass = Glu.glass.register({
     --- position into new sub-tables.
     ---
     ---@param tbl table An indexed table of equal-length indexed sub-tables.
-    ---@returns table A new table of sub-tables grouped by position.
+    ---@return table result A new table of sub-tables grouped by position.
     ---@example
     --- ```lua
     --- table.unzip({{1, "a"}, {2, "b"}})
@@ -702,7 +702,7 @@ local TableClass = Glu.glass.register({
     --- Creates a new table with weak references, controlled by the given mode.
     ---
     ---@param opt string|nil The weak mode: "k", "v", or "kv". (Optional. Default is "v".)
-    ---@returns table A new table with the specified weak mode.
+    ---@return table tbl A new table with the specified weak mode.
     ---@example
     --- ```lua
     --- table.new_weak("kv")
@@ -718,7 +718,7 @@ local TableClass = Glu.glass.register({
     --- Determines whether a table holds weak references.
     ---
     ---@param tbl table The table to check.
-    ---@returns boolean True if the table has a weak mode set, otherwise false.
+    ---@return boolean is_weak True if the table has a weak mode set, otherwise false.
     ---@example
     --- ```lua
     --- table.weak(table.new_weak("v"))
@@ -734,7 +734,7 @@ local TableClass = Glu.glass.register({
     --- the same position into new sub-tables.
     ---
     ---@param ... table The equal-length indexed tables to zip.
-    ---@returns table A new table of position-grouped sub-tables.
+    ---@return table results A new table of position-grouped sub-tables.
     ---@example
     --- ```lua
     --- table.zip({1, 2}, {"a", "b"})
@@ -760,7 +760,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The indexed table to search.
     ---@param value any The value to look for.
-    ---@returns boolean True if the value is present, otherwise false.
+    ---@return boolean present True if the value is present, otherwise false.
     ---@example
     --- ```lua
     --- table.includes({1, 2, 3}, 2)
@@ -832,7 +832,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The object table to inspect.
     ---@param extending boolean|nil Whether to include inherited functions. (Optional. Default is false.)
-    ---@returns table An indexed table of function names.
+    ---@return table result An indexed table of function names.
     ---@example
     --- ```lua
     --- table.functions(myObject)
@@ -855,7 +855,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The object table to inspect.
     ---@param extending boolean|nil Whether to include inherited properties. (Optional. Default is false.)
-    ---@returns table An indexed table of property names.
+    ---@return table result An indexed table of property names.
     ---@example
     --- ```lua
     --- table.properties(myObject)
@@ -875,7 +875,7 @@ local TableClass = Glu.glass.register({
     --- set to true.
     ---
     ---@param tbl table The table to check.
-    ---@returns boolean True if the table is an object, otherwise false.
+    ---@return boolean is_object True if the table is an object, otherwise false.
     ---@example
     --- ```lua
     --- table.object({object = true})
@@ -891,7 +891,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The associative table to merge into.
     ---@param value table The associative table whose pairs are copied in.
-    ---@returns table The modified table.
+    ---@return table tbl The modified table.
     ---@example
     --- ```lua
     --- table.add({a = 1}, {b = 2})
@@ -914,7 +914,7 @@ local TableClass = Glu.glass.register({
     ---@param tbl1 table The indexed table to insert into.
     ---@param tbl2 table The indexed table whose elements are inserted.
     ---@param index number|nil The position at which to insert. (Optional. Default is the end of tbl1.)
-    ---@returns table The modified table.
+    ---@return table tbl1 The modified table.
     ---@example
     --- ```lua
     --- table.n_add({1, 4}, {2, 3}, 2)
@@ -940,7 +940,7 @@ local TableClass = Glu.glass.register({
     --- indexed table, yielding each index and value.
     ---
     ---@param tbl table The indexed table to walk.
-    ---@returns function An iterator returning index and value on each call.
+    ---@return function iterator An iterator returning index and value on each call.
     ---@example
     --- ```lua
     --- for i, v in table.walk({"a", "b"}) do print(i, v) end
@@ -960,7 +960,7 @@ local TableClass = Glu.glass.register({
     --- Returns a uniformly random element from an indexed table.
     ---
     ---@param list table The indexed table to choose from.
-    ---@returns any A randomly chosen element.
+    ---@return any element A randomly chosen element.
     ---@example
     --- ```lua
     --- table.element_of({"a", "b", "c"})
@@ -977,7 +977,7 @@ local TableClass = Glu.glass.register({
     --- value is the relative weight of its key.
     ---
     ---@param list table An associative table mapping keys to numeric weights.
-    ---@returns any A randomly chosen key, weighted by its value.
+    ---@return any key A randomly chosen key, weighted by its value.
     ---@example
     --- ```lua
     --- table.element_of_weighted({common = 90, rare = 10})
@@ -1014,7 +1014,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The indexed table to test.
     ---@param condition any A predicate function or a value to compare each element against.
-    ---@returns boolean True if every element satisfies the condition, otherwise false.
+    ---@return boolean matched True if every element satisfies the condition, otherwise false.
     ---@example
     --- ```lua
     --- table.all({2, 4, 6}, function(v) return v % 2 == 0 end)
@@ -1041,7 +1041,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The indexed table to test.
     ---@param condition any A predicate function or a value to compare each element against.
-    ---@returns boolean True if any element satisfies the condition, otherwise false.
+    ---@return boolean matched True if any element satisfies the condition, otherwise false.
     ---@example
     --- ```lua
     --- table.some({1, 2, 3}, 2)
@@ -1061,7 +1061,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The indexed table to test.
     ---@param condition any A predicate function or a value to compare each element against.
-    ---@returns boolean True if no element satisfies the condition, otherwise false.
+    ---@return boolean matched True if no element satisfies the condition, otherwise false.
     ---@example
     --- ```lua
     --- table.none({1, 3, 5}, function(v) return v % 2 == 0 end)
@@ -1081,7 +1081,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The indexed table to test.
     ---@param condition any A predicate function or a value to compare each element against.
-    ---@returns boolean True if exactly one element satisfies the condition, otherwise false.
+    ---@return boolean matched True if exactly one element satisfies the condition, otherwise false.
     ---@example
     --- ```lua
     --- table.one({1, 2, 3}, 2)
@@ -1101,7 +1101,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The indexed table to test.
     ---@param condition any A predicate function or a value to compare each element against.
-    ---@returns number The number of elements that satisfy the condition.
+    ---@return number count The number of elements that satisfy the condition.
     ---@example
     --- ```lua
     --- table.count({1, 2, 2, 3}, 2)
@@ -1120,7 +1120,7 @@ local TableClass = Glu.glass.register({
     --- original table unmodified.
     ---
     ---@param tble table The indexed table to sort.
-    ---@returns table A new naturally sorted indexed table.
+    ---@return table sorted A new naturally sorted indexed table.
     ---@example
     --- ```lua
     --- table.natural_sort({"item10", "item2", "item1"})
@@ -1143,7 +1143,7 @@ local TableClass = Glu.glass.register({
     ---
     ---@param tbl table The indexed table to sort.
     ---@param arg function|nil A comparator function. (Optional. When omitted, natural sort is used.)
-    ---@returns table|nil A new naturally sorted table when no comparator is given, otherwise nil.
+    ---@return table|nil sorted A new naturally sorted table when no comparator is given, otherwise nil.
     ---@example
     --- ```lua
     --- table.sort({3, 1, 2})

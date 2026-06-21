@@ -14,7 +14,7 @@ local QueueClass = Glu.glass.register({
     --- module. The ID is in the form of a v4 UUID.
     ---
     ---@param funcs table? A table of functions to be added to the queue
-    ---@returns table The new queue object
+    ---@return table queue The new queue object
     ---
     ---@example
     --- ```lua
@@ -35,7 +35,7 @@ local QueueClass = Glu.glass.register({
     --- returned, otherwise the queue object is returned.
     ---
     ---@param id string The identifier of the queue to retrieve
-    ---@returns table|nil The queue object or nil if not found
+    ---@return table|nil queue The queue object or nil if not found
     function self.get(id)
       ___.v.type(id, "string", 1, false)
 
@@ -68,8 +68,8 @@ local QueueClass = Glu.glass.register({
     --- Removes and returns the next item from the named queue.
     ---
     ---@param id string The identifier of the queue to shift from.
-    ---@returns any The next item removed from the queue, or nil on failure.
-    ---@returns string An error message if the queue could not be found.
+    ---@return any item The next item removed from the queue, or nil on failure.
+    ---@return string err An error message if the queue could not be found.
     function self.shift(id)
       ___.v.type(id, "string", 1, false)
 

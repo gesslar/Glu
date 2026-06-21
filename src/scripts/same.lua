@@ -6,7 +6,7 @@ local SameClass = Glu.glass.register({
     --- Checks if two values are the same, including special cases for NaN and zero.
     ---@param value1 any The first value to compare.
     ---@param value2 any The second value to compare.
-    ---@returns boolean True if the values are the same, false otherwise.
+    ---@return boolean same True if the values are the same, false otherwise.
     function self.value_zero(value1, value2)
       ___.v.type(value1, "any", 1, false)
       ___.v.type(value2, "any", 2, false)
@@ -37,7 +37,7 @@ local SameClass = Glu.glass.register({
     --- Checks if two values are the same, including special cases for NaN and zero.
     ---@param value1 any The first value to compare.
     ---@param value2 any The second value to compare.
-    ---@returns boolean True if the values are the same, false otherwise.
+    ---@return boolean same True if the values are the same, false otherwise.
     function self.value(value1, value2)
       ___.v.type(value1, "any", 1, false)
       ___.v.type(value2, "any", 2, false)

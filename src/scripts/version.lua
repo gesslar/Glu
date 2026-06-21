@@ -24,7 +24,7 @@ local VersionClass = Glu.glass.register({
     ---
     ---@param version1 string|number The first version string or number.
     ---@param version2 string|number The second version string or number.
-    ---@returns number 1 if version1 is greater than version2, -1 if version1 is less than version2, and 0 if they are the same.
+    ---@return number result 1 if version1 is greater than version2, -1 if version1 is less than version2, and 0 if they are the same.
     ---@example
     --- ```lua
     --- version.compare("1.0.0", "2.0.0")

@@ -12,7 +12,7 @@ local QueueStackClass = Glu.glass.register({
     --- Pushes a function onto the end of the queue.
     ---
     ---@param f function The task function to add to the queue.
-    ---@returns number The new length of the queue.
+    ---@return number length The new length of the queue.
     function self.push(f)
       ___.v.type(f, "function", 1, false)
       return ___.table.push(self.stack, f)
@@ -20,7 +20,7 @@ local QueueStackClass = Glu.glass.register({
 
     --- Removes and returns the first task from the front of the queue.
     ---
-    ---@returns function|nil The shifted task function, or nil if the queue is empty.
+    ---@return function|nil task The shifted task function, or nil if the queue is empty.
     function self.shift()
       return ___.table.shift(self.stack)
     end
@@ -28,9 +28,9 @@ local QueueStackClass = Glu.glass.register({
     --- Shifts the next task off the queue and executes it with the provided arguments.
     ---
     ---@param ... any The arguments to pass to the task function.
-    ---@returns QueueStackClass The queue object.
-    ---@returns number|nil The number of remaining tasks, or nil when the queue is empty.
-    ---@returns any ... Any results returned by the executed task.
+    ---@return QueueStackClass self The queue object.
+    ---@return number|nil count The number of remaining tasks, or nil when the queue is empty.
+    ---@return any ... Any results returned by the executed task.
     function self.execute(...)
       -- Shift the next task off the queue
       local task = self.shift()

@@ -7,7 +7,7 @@ local UrlClass = Glu.glass.register({
     --- parameters into a more readable format.
     ---
     ---@param str string The URL-encoded string to decode.
-    ---@returns string The decoded string.
+    ---@return string str The decoded string.
     ---@example
     --- ```lua
     --- url:decode("This%20string%20is%20now%20readable%21%21%21")
@@ -27,7 +27,7 @@ local UrlClass = Glu.glass.register({
     --- parameters into a URL before sending it to a server.
     ---
     ---@param str string The string to encode.
-    ---@returns string The URL-encoded string.
+    ---@return string str The URL-encoded string.
     ---@example
     --- ```lua
     --- url:encode("This string is now usable in a URL.")
@@ -45,7 +45,7 @@ local UrlClass = Glu.glass.register({
     --- Parses a query string into a table of key-value pairs.
     ---
     ---@param query_string string The query string to parse.
-    ---@returns table A table containing the parsed key-value pairs.
+    ---@return table params A table containing the parsed key-value pairs.
     ---@example
     --- ```lua
     --- url:decode_params("name=John&age=30")
@@ -65,7 +65,7 @@ local UrlClass = Glu.glass.register({
     --- Encodes a table of key-value pairs into a query string.
     ---
     ---@param params table The table of key-value pairs to encode.
-    ---@returns string The encoded query string.
+    ---@return string encoded The encoded query string.
     ---@example
     --- ```lua
     --- url:encode_params({ name = "John", age = "30" })
@@ -82,7 +82,7 @@ local UrlClass = Glu.glass.register({
     --- Parses a URL into its components.
     ---
     ---@param url string The URL to parse.
-    ---@returns table A table containing the parsed URL components.
+    ---@return table parsed A table containing the parsed URL components.
     ---@example
     --- ```lua
     --- url:parse("https://example.com/path/dosomething?name=John&age=30")
