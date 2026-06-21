@@ -1,6 +1,6 @@
 {
   "name": "glu",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "A modular utility library for Mudlet that just works. No fuss, no muss.",
   "scripts": {
     "build": "(\nset -e pipefail\nnpx @gesslar/muddy\nnpm run build:single\nnpm run build:min\nnpm run build:docs\nnpm run build:lib\n)",
