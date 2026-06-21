@@ -1,0 +1,87 @@
+# yaml-language-server: $schema=https://schema.gesslar.dev/bedoc/v1/bedoc-action.json
+
+$schema: https://schema.gesslar.dev/bedoc/v1/bedoc-action.json
+accepts:
+  type: object
+  required:
+    - functions
+  properties:
+    functions:
+      type: array
+      items:
+        type: object
+        required:
+          - name
+          - signature
+        properties:
+          name:
+            type: string
+          file:
+            type: object
+            properties:
+              module:
+                type: string
+              class:
+                type: string
+              description:
+                type: string
+          signature:
+            type: object
+            required:
+              - name
+            properties:
+              name:
+                type: string
+              method:
+                type: string
+              type:
+                type: string
+              parameters:
+                type: array
+                items:
+                  type: string
+          description:
+            type: array
+            items:
+              type: string
+          param:
+            type: array
+            items:
+              type: object
+              required:
+                - type
+                - name
+              properties:
+                type:
+                  oneOf:
+                    - type: string
+                    - type: array
+                      items:
+                        type: string
+                name:
+                  type: string
+                content:
+                  type: array
+                  items:
+                    type: string
+          return:
+            type: array
+            items:
+              type: object
+              required:
+                - type
+              properties:
+                type:
+                  oneOf:
+                    - type: string
+                    - type: array
+                      items:
+                        type: string
+                content:
+                  type: array
+                  items:
+                    type: string
+          example:
+            type: array
+            items:
+              type: string

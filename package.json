@@ -1,18 +1,21 @@
 {
   "name": "glu",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "A modular utility library for Mudlet that just works. No fuss, no muss.",
   "scripts": {
-    "build": "(\nset -e pipefail\nnpx @gesslar/muddy\nnpm run build:single\nnpm run build:min\n)",
+    "build": "(\nset -e pipefail\nnpx @gesslar/muddy\nnpm run build:single\nnpm run build:min\nnpm run build:docs\nnpm run build:lib\n)",
     "build:single": "python unify.py src/scripts build/Glu-single.lua",
     "build:min": "python unify.py src/scripts build/tmp/Glu-unified.lua && python mini.py build/tmp/Glu-unified.lua build/Glu-min.lua",
+    "build:docs": "npx bedoc --config bedoc/bedoc.yaml --sub docs",
+    "build:lib": "npx bedoc --config bedoc/bedoc.yaml --sub library",
     "clean": "rm -rf build/Glu-*.lua build/filtered build/tmp",
     "test": "docker run --rm -v \"$PWD\":/workspace gesslardev/mudlet-busted",
     "test:tree": "docker run --rm -e BUSTED_OUTPUT=treeOutput -v \"$PWD\":/workspace gesslardev/mudlet-busted",
     "docker:update": "docker pull gesslardev/mudlet-busted",
     "major": "npx @gesslar/muddy version major",
     "minor": "npx @gesslar/muddy version minor",
-    "patch": "npx @gesslar/muddy version patch"
+    "patch": "npx @gesslar/muddy version patch",
+    "update": "npx npm-check-updates -u && npm install"
   },
   "keywords": [
     "mudlet",
@@ -24,8 +27,9 @@
   },
   "license": "0BSD",
   "devDependencies": {
-    "@gesslar/bedoc": "^1.11.0",
-    "@gesslar/muddy": "^2.2.2"
+    "@gesslar/bedoc": "^2.1.3",
+    "@gesslar/muddy": "^2.2.3",
+    "@gesslar/toolkit": "^5.6.0"
   },
   "files": [
     "README.md",

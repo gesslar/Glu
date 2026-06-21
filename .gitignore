@@ -1,6 +1,5 @@
 .output
 build/
-docs/
 node_modules/
 /tmp/busted-tests-failed
 test/mudlet/

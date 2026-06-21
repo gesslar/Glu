@@ -26,10 +26,16 @@ jobs:
       - run: npm ci
       - name: Build single + minified
         run: npm run build
+      - name: Package docs + library
+        run: |
+          tar -czf bedoc.docs.tar.gz -C build docs
+          tar -czf bedoc.library.tar.gz -C build library
       - name: Attach to release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           version=$(jq -r '.version' mfile)
           gh release upload --clobber \
-            "$version" build/Glu-min.lua build/Glu-single.lua
+            "$version" \
+            build/Glu-min.lua build/Glu-single.lua \
+            bedoc.docs.tar.gz bedoc.library.tar.gz
