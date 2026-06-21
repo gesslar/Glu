@@ -248,8 +248,8 @@ local ColourClass = Glu.glass.register({
 
     --- Lightens or darkens the first colour by a given amount based on a comparison with the second colour.
     --- If the colours are already contrasting, the original colour is returned.
-    --- @param rgb_compare table - The first RGB colour as a table with three elements: red, green, and blue.
-    --- @param rgb_colour table - The second RGB colour as a table with three elements: red, green, and blue.
+    --- @param rgb_colour table - The RGB colour to adjust, as a table with three elements: red, green, and blue.
+    --- @param rgb_compare table - The RGB colour to compare against, as a table with three elements: red, green, and blue.
     --- @param amount number - The amount to lighten or darken the colour by. (Optional, defaults to 85)
     --- @return table - The adjusted RGB colour as a table with three elements: red, green, and blue. Unless the colours are already constrasted, in which case the original colour is returned.
     ---

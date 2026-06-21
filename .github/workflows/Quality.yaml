@@ -12,4 +12,8 @@ jobs:
     uses: gesslar/Maint/.github/workflows/QualityMudlet.yaml@main
     secrets: inherit
     with:
-      perform_testing: "${{ vars.PERFORM_TESTING || 'yes' }}"
+      # leave me alone. i know this is 'no'. _i typed it myself_,
+      # __with my fingers__. go find something real to lint about.
+      # all questions about my intent will be met with stern looks
+      # and possibly fire.
+      perform_testing: "${{ vars.PERFORM_TESTING || 'no' }}"

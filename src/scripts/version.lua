@@ -32,8 +32,8 @@ local VersionClass = Glu.glass.register({
     --- ```
     function self.compare(version1, version2)
       -- The versions must be of the same type
-      ___.v.test(type(version1) == "string" or type(version1) == "number", 1, "Invalid value to argument 1. Expected a string or number.")
-      ___.v.test(type(version2) == "string" or type(version2) == "number", 2, "Invalid value to argument 2. Expected a string or number.")
+      ___.v.test(type(version1) == "string" or type(version1) == "number", "Expected a string or number.", 1)
+      ___.v.test(type(version2) == "string" or type(version2) == "number", "Expected a string or number.", 2)
       ___.v.same_type(version1, version2)
 
       version1 = tostring(version1)
@@ -43,10 +43,10 @@ local VersionClass = Glu.glass.register({
       local version1_parts = version1:split("%.") or {}
       local version2_parts = version2:split("%.") or {}
 
-      ___.v.test(type(version1_parts) == "table", 1, "Invalid value to argument 1. Expected a string.")
-      ___.v.test(type(version2_parts) == "table", 2, "Invalid value to argument 2. Expected a string.")
+      ___.v.test(type(version1_parts) == "table", "Expected a string.", 1)
+      ___.v.test(type(version2_parts) == "table", "Expected a string.", 2)
 
-      ___.v.test(#version1_parts == #version2_parts, 1, "Invalid value to arguments. Expected 1 and 2 to have the same number of parts.")
+      ___.v.test(#version1_parts == #version2_parts, "Expected arguments 1 and 2 to have the same number of parts.", 1)
 
       for i = 1, #version1_parts do
         local result = _compare(version1_parts[i], version2_parts[i])
