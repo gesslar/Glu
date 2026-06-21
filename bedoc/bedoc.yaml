@@ -1,0 +1,30 @@
+# Glu docs and library generation.
+#
+# Scrapes the Lua comment blocks out of the source code and emits
+# documentation, among other things.
+#
+# Run from the project root:
+#
+#   npx bedoc --config bedoc/bedoc.yaml --sub docs
+#   npx bedoc --config bedoc/bedoc.yaml --sub library
+#
+
+# Pinned parser (no discovery) — they are not published packages.
+parser: bedoc/actions/bedoc-lua-parser.js
+
+# Every lua source file.
+input: [ src/scripts/*.lua ]
+
+# Don't show all the stages
+terse: true
+
+sub:
+  # For regular documentation.
+  - name: docs
+    formatter: bedoc/actions/bedoc-markdown-formatter.js
+    output: build/docs/
+
+  # For generating a LuaLS meta stub library
+  - name: library
+    formatter: bedoc/actions/bedoc-lua-library-formatter.js
+    output: build/library/
