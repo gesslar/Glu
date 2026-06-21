@@ -12,3 +12,24 @@ jobs:
     secrets: inherit
     permissions:
       contents: write
+
+  Bundle:
+    needs: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - uses: actions/setup-node@v6
+        with:
+          node-version: lts/*
+      - run: npm ci
+      - name: Build single + minified
+        run: npm run build
+      - name: Attach to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          version=$(jq -r '.version' mfile)
+          gh release upload --clobber \
+            "$version" build/Glu-min.lua build/Glu-single.lua
