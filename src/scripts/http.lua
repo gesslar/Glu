@@ -20,10 +20,10 @@ local HttpClass = Glu.glass.register({
     --- file, however, this is a bit more convenient as it does some checking
     --- for you.
     ---
-    --- @param options table - The options for the request.
-    --- @param cb function - The callback function.
-    --- @return table - The HTTP request object.
-    --- @example
+    ---@param options table The options for the request.
+    ---@param cb function The callback function.
+    ---@return table request The HTTP request object.
+    ---@example
     --- ```lua
     --- http.download({
     ---   url = "http://example.com/file.txt",
@@ -43,10 +43,10 @@ local HttpClass = Glu.glass.register({
     --- - `url` (`string`) - The URL to request.
     --- - `headers` (`table`) - The headers to send with the request.
     ---
-    --- @param options table - The options for the request.
-    --- @param cb function - The callback function.
-    --- @return table - The HTTP request object.
-    --- @example
+    ---@param options table The options for the request.
+    ---@param cb function The callback function.
+    ---@return table request The HTTP request object.
+    ---@example
     --- ```lua
     --- http.get({
     ---   url = "http://example.com/file.txt"
@@ -64,10 +64,10 @@ local HttpClass = Glu.glass.register({
     --- - `url` (`string`) - The URL to request.
     --- - `headers` (`table`) - The headers to send with the request.
     ---
-    --- @param options table - The options for the request.
-    --- @param cb function - The callback function.
-    --- @return table - The HTTP request object.
-    --- @example
+    ---@param options table The options for the request.
+    ---@param cb function The callback function.
+    ---@return table request The HTTP request object.
+    ---@example
     --- ```lua
     --- http.post({
     ---   url = "http://example.com/file.txt"
@@ -85,10 +85,10 @@ local HttpClass = Glu.glass.register({
     --- - `url` (`string`) - The URL to request.
     --- - `headers` (`table`) - The headers to send with the request.
     ---
-    --- @param options table - The options for the request.
-    --- @param cb function - The callback function.
-    --- @return table - The HTTP request object.
-    --- @example
+    ---@param options table The options for the request.
+    ---@param cb function The callback function.
+    ---@return table request The HTTP request object.
+    ---@example
     --- ```lua
     --- http.put({
     ---   url = "http://example.com/file.txt"
@@ -106,10 +106,10 @@ local HttpClass = Glu.glass.register({
     --- - `url` (`string`) - The URL to request.
     --- - `headers` (`table`) - The headers to send with the request.
     ---
-    --- @param options table - The options for the request.
-    --- @param cb function - The callback function.
-    --- @return table - The HTTP request object.
-    --- @example
+    ---@param options table The options for the request.
+    ---@param cb function The callback function.
+    ---@return table request The HTTP request object.
+    ---@example
     --- ```lua
     --- http.delete({
     ---   url = "http://example.com/file.txt"
@@ -129,10 +129,10 @@ local HttpClass = Glu.glass.register({
     --- - `method` (`string`) - The HTTP method to use.
     --- - `headers` (`table`) - The headers to send with the request.
     ---
-    --- @param options table - The options for the request.
-    --- @param cb function - The callback function.
-    --- @return table - The HTTP request object.
-    --- @example
+    ---@param options table The options for the request.
+    ---@param cb function The callback function.
+    ---@return table request The HTTP request object.
+    ---@example
     --- ```lua
     --- http.request({
     ---   url = "http://example.com/file.txt"
@@ -156,6 +156,10 @@ local HttpClass = Glu.glass.register({
       return request
     end
 
+    --- Removes a tracked HTTP request from the request list by its id.
+    ---
+    ---@param id string The id of the request to remove.
+    ---@return nil result Nothing.
     function self.delete_request(id)
       for i = 1, #requests do
         if requests[i].id == id then
@@ -165,6 +169,10 @@ local HttpClass = Glu.glass.register({
       end
     end
 
+    --- Looks up a tracked HTTP request by its id.
+    ---
+    ---@param id string The id of the request to find.
+    ---@return table|nil request The matching request, or nil if none is found.
     function self.find_request(id)
       for _, request in ipairs(requests) do
         if request.id == id then

@@ -5,6 +5,22 @@ local DateClass = Glu.glass.register({
   setup = function(___, self, opts)
     local v = ___.v
 
+    --- Converts a number of seconds into hours, minutes, and seconds.
+    --- When `as_string` is true, returns a single human-readable string such as
+    --- "1h 2m 3s". Otherwise, returns three zero-padded "HH", "MM", "SS" strings.
+    ---
+    ---@param seconds number The number of seconds to convert.
+    ---@param as_string boolean|nil Whether to return a single formatted string instead of three values. (Optional. Default is false.)
+    ---@return string hours The zero-padded hours, or the single formatted string when `as_string` is true.
+    ---@return string minutes The zero-padded minutes. Not returned when `as_string` is true.
+    ---@return string seconds The zero-padded seconds. Not returned when `as_string` is true.
+    ---@example
+    --- ```lua
+    --- date.shms(3661)
+    --- -- "01", "01", "01"
+    --- date.shms(3661, true)
+    --- -- "1h 1m 1s"
+    --- ```
     function self.shms(seconds, as_string)
       v.type(seconds, "number", 1, false)
       v.type(as_string, "boolean", 2, true)

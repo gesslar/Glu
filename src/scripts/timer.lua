@@ -35,11 +35,11 @@ local TimerClass = Glu.glass.register({
     end
 
     --- Creates nested timers and returns true if successful.
-    --- @param name string - The name of the multi timer.
-    --- @param def table - The definition of the multi timer.
-    --- @param delay number - The delay between each timer.
-    --- @return boolean - True if the multi timer was created, errors out if not.
-    --- @example
+    ---@param name string The name of the multi timer.
+    ---@param def table The definition of the multi timer.
+    ---@param delay number The delay between each timer.
+    ---@return boolean ok True if the multi timer was created, errors out if not.
+    ---@example
     --- ```lua
     --- -- At intervals of 5 seconds, print "hi", "there", "you", "amazing", and
     --- -- "developer"
@@ -92,9 +92,9 @@ local TimerClass = Glu.glass.register({
     end
 
     --- Kills a multi timer by name.
-    --- @param name string - The name of the multi timer.
-    --- @return boolean|nil - True if the multi timer was killed, nil if it doesn't exist.
-    --- @example
+    ---@param name string The name of the multi timer.
+    ---@return boolean|nil killed True if the multi timer was killed, nil if it doesn't exist.
+    ---@example
     --- ```lua
     --- timer.kill_multi("Greetings")
     --- ```
