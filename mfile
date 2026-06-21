@@ -1,7 +1,7 @@
 {
   "package": "Glu",
   "title": "Lua class library for Mudlet",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "author": "gesslar",
   "icon": "liquid-glue.png",
   "dependencies": "",
