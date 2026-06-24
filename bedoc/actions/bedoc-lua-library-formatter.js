@@ -70,7 +70,10 @@ export default class LuaLibraryFormatter {
    */
   #formatStub = ctx => {
     const lines = []
-    const module = ctx.file?.module || "_"
+    // Bind stubs to the named class (a local), never the global module name.
+    // Emitting `table = {}` / `string = {}` would hijack Lua/Mudlet built-in
+    // globals; consumers reach these via the Glu instance (glu.table) instead.
+    const module = ctx.file?.class || ctx.file?.module || "_"
     const method = ctx.signature?.method || ctx.name
 
     // Description block (kept in the new `--- ` style).
@@ -140,7 +143,7 @@ export default class LuaLibraryFormatter {
     if(!functions.length)
       return ""
 
-    const {module, class: className, description} = functions[0].file ?? {}
+    const {class: className, description} = functions[0].file ?? {}
     const name = className || "Unknown"
 
     const header = [
@@ -158,7 +161,9 @@ export default class LuaLibraryFormatter {
     }
 
     header.push(`---@class ${name}`)
-    header.push(`${module || "_"} = {}`)
+    // Local binding only — do not leak `${module}` into the global namespace
+    // (would shadow Lua/Mudlet built-ins like `table`/`string`).
+    header.push(`local ${name} = {}`)
     header.push("")
     header.push("if false then -- ensure that functions do not get defined")
 

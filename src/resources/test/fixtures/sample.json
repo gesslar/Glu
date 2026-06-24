@@ -1,0 +1,8 @@
+{
+  "name": "Glu",
+  "count": 3,
+  "nested": {
+    "enabled": true,
+    "items": ["a", "b", "c"]
+  }
+}
