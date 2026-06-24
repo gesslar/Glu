@@ -125,6 +125,39 @@ local FdClass = Glu.glass.register({
       return data
     end
 
+    --- Reads a file and decodes its JSON contents.
+    ---
+    --- The decoded value mirrors the JSON document's top-level type, so it may be
+    --- a table (object or array), string, number, or boolean — not only a table.
+    --- A JSON `null` decodes to the `yajl.null` sentinel (userdata), which stays
+    --- distinct from the `nil` returned on failure.
+    ---
+    ---@param path string The path to the JSON file.
+    ---@return table|string|number|boolean|userdata|nil data The decoded value, or nil if the file is missing, unreadable, or contains invalid JSON.
+    ---@return string|nil error The error message: "No such file" when missing, the read error when unreadable, or the parser error when the JSON is malformed.
+    ---@example
+    --- ```lua
+    --- fd.read_json("path/to/file.json")
+    --- -- { key = "value" }
+    --- ```
+    function self.read_json(path)
+      ___.v.type(path, "string", 1, false)
+
+      if not self.file_exists(path) then
+        return nil, "No such file '" .. path .. "'"
+      end
+
+      local data, err = self.read_file(path)
+
+      if not data then return nil, err end
+
+      local ok, result = pcall(yajl.to_value, data)
+
+      if not ok then return nil, result end
+
+      return result, nil
+    end
+
     --- Writes to a file.
     ---@param path string The path to the file.
     ---@param data string The data to write to the file.

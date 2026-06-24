@@ -252,6 +252,89 @@ describe("fd module", function()
   end)
 
   -- ========================================================================
+  -- read_json
+  -- ========================================================================
+
+  describe("read_json", function()
+    it("should decode a JSON file into a table", function()
+      local data, err = g.fd.read_json(fixtures_dir .. "/sample.json")
+      assert.is_nil(err)
+      assert.is_truthy(data)
+      assert.are.equal("Glu", data.name)
+      assert.are.equal(3, data.count)
+    end)
+
+    it("should decode nested structures", function()
+      local data = g.fd.read_json(fixtures_dir .. "/sample.json")
+      assert.is_true(data.nested.enabled)
+      assert.are.same({"a", "b", "c"}, data.nested.items)
+    end)
+
+    it("should return nil and an error for a non-existing file", function()
+      local data, err = g.fd.read_json(fixtures_dir .. "/nonexistent.json")
+      assert.is_nil(data)
+      assert.is_truthy(err)
+    end)
+
+    it("should return nil and an error for a directory", function()
+      local data, err = g.fd.read_json(fixtures_dir)
+      assert.is_nil(data)
+      assert.is_truthy(err)
+    end)
+
+    it("should return nil and an error for malformed JSON", function()
+      local data, err = g.fd.read_json(fixtures_dir .. "/broken.json")
+      assert.is_nil(data)
+      assert.is_truthy(err)
+    end)
+
+    it("should error on non-string path", function()
+      assert.has_error(function()
+        g.fd.read_json(123)
+      end)
+    end)
+
+    it("should error on nil path", function()
+      assert.has_error(function()
+        g.fd.read_json(nil)
+      end)
+    end)
+
+    it("should decode a top-level array", function()
+      local data, err = g.fd.read_json(fixtures_dir .. "/array.json")
+      assert.is_nil(err)
+      assert.are.same({1, 2, 3}, data)
+    end)
+
+    it("should decode a top-level number", function()
+      local data, err = g.fd.read_json(fixtures_dir .. "/number.json")
+      assert.is_nil(err)
+      assert.are.equal(42, data)
+    end)
+
+    it("should decode a top-level string", function()
+      local data, err = g.fd.read_json(fixtures_dir .. "/string.json")
+      assert.is_nil(err)
+      assert.are.equal("hello", data)
+    end)
+
+    it("should decode a top-level boolean", function()
+      local data, err = g.fd.read_json(fixtures_dir .. "/bool.json")
+      assert.is_nil(err)
+      assert.is_true(data)
+    end)
+
+    it("should decode top-level null to the yajl.null sentinel, not nil", function()
+      local data, err = g.fd.read_json(fixtures_dir .. "/null.json")
+      assert.is_nil(err)
+      -- A successful null decode is the yajl.null sentinel (userdata), which is
+      -- distinct from the Lua nil returned on failure.
+      assert.is_truthy(data)
+      assert.are.equal(yajl.null, data)
+    end)
+  end)
+
+  -- ========================================================================
   -- write_file
   -- ========================================================================
 

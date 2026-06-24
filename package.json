@@ -1,13 +1,13 @@
 {
   "name": "glu",
-  "version": "2.0.3",
+  "version": "2.1.0",
   "description": "A modular utility library for Mudlet that just works. No fuss, no muss.",
   "scripts": {
     "build": "(\nset -e pipefail\nnpx @gesslar/muddy\nnpm run build:single\nnpm run build:min\nnpm run build:docs\nnpm run build:lib\n)",
     "build:single": "python unify.py src/scripts build/Glu-single.lua",
     "build:min": "python unify.py src/scripts build/tmp/Glu-unified.lua && python mini.py build/tmp/Glu-unified.lua build/Glu-min.lua",
     "build:docs": "npx bedoc --config bedoc/bedoc.yaml --sub docs",
-    "build:lib": "npx bedoc --config bedoc/bedoc.yaml --sub library",
+    "build:lib": "npx bedoc --config bedoc/bedoc.yaml --sub library && python gen-library-instance.py src/scripts build/library",
     "clean": "rm -rf build/Glu-*.lua build/filtered build/tmp",
     "test": "docker run --rm -v \"$PWD\":/workspace gesslardev/mudlet-busted",
     "test:tree": "docker run --rm -e BUSTED_OUTPUT=treeOutput -v \"$PWD\":/workspace gesslardev/mudlet-busted",
