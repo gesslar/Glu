@@ -4,6 +4,50 @@
 
 A modular utility library for Mudlet that just works. No fuss, no muss.
 
+## The Glasses
+
+Glu is a collection of "glasses" — self-contained modules, each hanging off
+your Glu instance as `glu.<name>`.
+
+| Glass | What it does |
+| --- | --- |
+| `colour` | Interpolate and convert RGB colours — fades, gradients, colour maths. |
+| `conditions` | Assertion-style condition checks that return `ok, message` instead of throwing. |
+| `date` | Turn seconds into human-readable durations and back again. |
+| `dependency_queue` | Download and install any Mudlet packages your package depends on. |
+| `fd` | File and directory handling — paths, reads, writes, directory creation. |
+| `func` | Function helpers — delayed calls, repeaters, and wrapping. |
+| `glass_loader` | Load a glass at runtime from a local file or an http(s) URL. |
+| `http` | HTTP requests and file downloads with callbacks. |
+| `http_request` | The request object `http` builds for you. Rarely used directly. |
+| `http_response` | The response object handed to your `http` callback. |
+| `number` | Rounding, clamping, ranges, and other numeric odds and ends. |
+| `preferences` | Load and save package preferences as JSON, merged over defaults. |
+| `queuable` | Mixin giving a glass push/pop/shift/unshift stack behaviour. |
+| `queue` | Create and manage queues of functions to run in order. |
+| `queue_stack` | An individual queue created by `queue`. |
+| `regex` | Shared regular expressions (such as URL matching) and regex validation. |
+| `same` | Deep and special-case equality comparisons, including NaN and signed zero. |
+| `string` | Capitalise, trim, split, walk, and otherwise abuse strings. |
+| `table` | The big one — map, filter, reduce, merge, distinct, and much more. |
+| `timer` | Named and multi-stage timers that fire a sequence of functions. |
+| `try` | `try`/`catch`/`finally` chains around code that might explode. |
+| `url` | Encode, decode, and parse URLs and their query strings. |
+| `version` | Compare version strings, including semver. |
+
+### On the instance itself
+
+A handful of things live directly on your Glu instance rather than in a glass.
+
+| Function | What it does |
+| --- | --- |
+| `glu.id()` | Generate a v4 UUID. Handy for naming timers, handlers, and objects. |
+| `glu.register(opts)` | Register your own glass on the instance. See [Extend It](#extend-it). |
+| `glu.v` | Argument validation — `v.type`, `v.not_nil`, `v.same_type`, `v.test`. |
+| `glu.get_glass(name)` | Fetch a registered glass class by name. `has_glass` and `get_glass_names` come along too. |
+| `glu.get_object(name)` | Fetch an instantiated glass off the instance. `has_object` for the boolean. |
+| `glu.getPackageName()` | The package name you handed to `Glu()`. |
+
 ## Installation
 
 Glu ships in two forms, depending on how you use it.
