@@ -23,9 +23,18 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: lts/*
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.x'
       - run: npm ci
       - name: Build single + minified
-        run: npm run build
+        run: |
+          npm run build:single
+          npm run build:min
+      - name: Build docs + library
+        run: |
+          npm run build:docs
+          npm run build:lib
       - name: Package docs + library
         run: |
           tar -czf Glu.docs.tar.gz -C build docs
