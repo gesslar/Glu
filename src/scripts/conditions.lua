@@ -155,7 +155,7 @@ local ConditionsClass = Glu.glass.register({
 
     --- Checks if a value is of a specific type.
     ---@param value any The value to check
-    ---@param type string The type to check against
+    ---@param expected_type string The type to check against
     ---@param message string|nil The message to return if the values are not of the specified type
     ---@return boolean ok The condition
     ---@return string|nil message The message
