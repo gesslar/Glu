@@ -66,7 +66,7 @@ python mini.py build/tmp/Glu-unified.lua build/Glu-min.lua
 
 ### `npm run build`
 
-Runs the full build process (muddle + single + min)
+Runs the full build process (muddy + single + min)
 
 ## Distribution Usage
 
