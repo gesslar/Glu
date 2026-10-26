@@ -1,6 +1,6 @@
 {
-  "name": "glu",
-  "version": "2.2.1",
+  "name": "@gesslar/glu",
+  "version": "2.4.0",
   "description": "A modular utility library for Mudlet that just works. No fuss, no muss.",
   "scripts": {
     "build": "npx -y @gesslar/muddy",
@@ -16,7 +16,8 @@
     "major": "npx -y @gesslar/muddy version major --package && npm i",
     "minor": "npx -y @gesslar/muddy version minor --package && npm i",
     "patch": "npx -y @gesslar/muddy version patch --package && npm i",
-    "update": "npx -y npm-check-updates -u && npm install"
+    "update": "npx -y npm-check-updates -u && npm install",
+    "prepack": "npm run build:single && npm run build:lib"
   },
   "keywords": [
     "mudlet",
@@ -35,8 +36,16 @@
   "files": [
     "README.md",
     "mfile",
+    "build/Glu-single.lua",
+    "build/library",
     "src/scripts",
     "src/resources",
     "!src/resources/test"
-  ]
+  ],
+  "allowScripts": {
+    "@gesslar/toolkit@5.9.1": true
+  },
+  "publishConfig": {
+    "access": "public"
+  }
 }

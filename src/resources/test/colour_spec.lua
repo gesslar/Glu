@@ -586,6 +586,26 @@ describe("colour module", function()
       assert.is_true(result[3] >= 0 and result[3] <= 255)
     end)
 
+    it("should return the exact second colour at factor 100 for dark colours", function()
+      local result = g.colour.interpolate({0, 0, 0}, {18, 22, 25}, 100)
+      assert.are.same({18, 22, 25}, result)
+    end)
+
+    it("should keep the chromatic colour's hue when fading from black", function()
+      for factor = 10, 90, 10 do
+        local result = g.colour.interpolate({0, 0, 0}, {18, 22, 25}, factor, "linear")
+        -- The target is blue-grey (b >= g >= r); no red/purple tint en route
+        assert.is_true(result[3] >= result[2] and result[2] >= result[1])
+      end
+    end)
+
+    it("should keep the chromatic colour's hue when fading to white", function()
+      local result = g.colour.interpolate({255, 0, 0}, {255, 255, 255}, 50, "linear")
+      -- Red lightened: green and blue rise together, no hue shift
+      assert.is_true(result[1] > result[2])
+      assert.are.equal(result[2], result[3])
+    end)
+
     it("should use smooth interpolation by default", function()
       local smooth = g.colour.interpolate({255, 0, 0}, {0, 0, 255}, 25)
       local linear = g.colour.interpolate({255, 0, 0}, {0, 0, 255}, 25, "linear")

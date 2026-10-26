@@ -4,6 +4,33 @@ local ColourClass = Glu.glass.register({
   dependencies = { "number" },
   setup = function(___, self)
     local v = self.v
+
+    -- Converts RGB to unrounded HSL (degrees, percent, percent). Also reports
+    -- whether the colour is achromatic (a grey), in which case its hue is
+    -- meaningless and reported as 0.
+    local function raw_hsl(rgb)
+      local r, g, b = rgb[1] / 255, rgb[2] / 255, rgb[3] / 255
+      local max, min = math.max(r, g, b), math.min(r, g, b)
+      local h, s, l = 0, 0, (max + min) / 2
+
+      if max ~= min then
+        local d = max - min
+        s = l > 0.5 and d / (2 - max - min) or d / (max + min)
+
+        if max == r then
+          h = (g - b) / d + (g < b and 6 or 0)
+        elseif max == g then
+          h = (b - r) / d + 2
+        else
+          h = (r - g) / d + 4
+        end
+
+        h = h / 6
+      end
+
+      return { h * 360, s * 100, l * 100 }, max == min
+    end
+
     --- Interpolates between two RGB colours based on a step value. Functionally,
     --- it takes two colours and returns a third colour somewhere between the
     --- two colours, based on the step value. Generally used to fade between two
@@ -53,12 +80,21 @@ local ColourClass = Glu.glass.register({
         f "Invalid interpolation method: {method}. Must be one of: " ..
         table.concat(valid_methods, ", "), 4, false)
 
-      local hsl1 = self.rgb_to_hsl(rgb1)
-      local hsl2 = self.rgb_to_hsl(rgb2)
+      -- Work in unrounded HSL so dark or subtle colours keep their precision
+      local hsl1, grey1 = raw_hsl(rgb1)
+      local hsl2, grey2 = raw_hsl(rgb2)
       local t = factor / 100
 
-      -- Special handling for hue to ensure we take shortest path around the color wheel
+      -- A grey has no hue, so borrow the other colour's hue rather than
+      -- sweeping around the wheel from red.
       local h1, h2 = hsl1[1], hsl2[1]
+      if grey1 and not grey2 then
+        h1 = h2
+      elseif grey2 and not grey1 then
+        h2 = h1
+      end
+
+      -- Special handling for hue to ensure we take shortest path around the color wheel
       local diff = h2 - h1
       if diff > 180 then
         h2 = h2 - 360
@@ -85,30 +121,13 @@ local ColourClass = Glu.glass.register({
     function self.rgb_to_hsl(rgb)
       ___.v.rgb_table(rgb, 1, false)
 
-      local r, g, b = rgb[1] / 255, rgb[2] / 255, rgb[3] / 255
-      local max, min = math.max(r, g, b), math.min(r, g, b)
-      local h, s, l = 0, 0, (max + min) / 2
+      local h, s, l = table.unpack((raw_hsl(rgb)))
 
-      if max ~= min then
-        local d = max - min
-        s = l > 0.5 and d / (2 - max - min) or d / (max + min)
-
-        if max == r then
-          h = (g - b) / d + (g < b and 6 or 0)
-        elseif max == g then
-          h = (b - r) / d + 2
-        else
-          h = (r - g) / d + 4
-        end
-
-        h = h / 6
-      end
-
-      -- Convert to degrees/percentages and ensure numbers
+      -- Round to whole degrees/percentages
       return {
-        math.floor(h * 360 + 0.5),
-        math.floor(s * 100 + 0.5),
-        math.floor(l * 100 + 0.5)
+        math.floor(h + 0.5),
+        math.floor(s + 0.5),
+        math.floor(l + 0.5)
       }
     end
 

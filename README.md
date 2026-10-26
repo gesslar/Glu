@@ -214,4 +214,4 @@ documentation, guides, and examples.
 
 ## License
 
-`glu` is released under the [0BSD](LICENSE.txt).
+Glu is released under the [0BSD](https://opensource.org/license/0bsd).
