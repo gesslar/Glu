@@ -58,9 +58,31 @@ describe("date module", function()
       assert.are.equal("50", s)
     end)
 
-    it("should return empty string for 0 seconds in string mode", function()
+    it("should return 0s for 0 seconds in string mode", function()
       local result = g.date.shms(0, true)
-      assert.are.equal("", result)
+      assert.are.equal("0s", result)
+    end)
+
+    it("should include days in string mode", function()
+      local result = g.date.shms(90061, true)
+      assert.are.equal("1d 1h 1m 1s", result)
+    end)
+
+    it("should include months in string mode", function()
+      local result = g.date.shms(30 * 86400 + 2 * 86400, true)
+      assert.are.equal("1mo 2d", result)
+    end)
+
+    it("should include years in string mode", function()
+      local result = g.date.shms(365 * 86400 + 60 * 86400 + 3600, true)
+      assert.are.equal("1y 2mo 1h", result)
+    end)
+
+    it("should not cap hours at 24 in tuple mode", function()
+      local h, m, s = g.date.shms(90061)
+      assert.are.equal("25", h)
+      assert.are.equal("01", m)
+      assert.are.equal("01", s)
     end)
 
     it("should handle exactly one minute", function()
