@@ -2,7 +2,7 @@ local GitHubClass = Glu.glass.register({
   class_name = "GitHubClass",
   name = "github",
   extends = "http",
-  setup = function(___, self, opts, container)
+  setup = function(___, self)
     local gh_api_base = "https://api.github.com/repos/%s/%s/"
 
     function self.get_latest_release(owner, repo, cb)

@@ -61,7 +61,7 @@ local FdClass = Glu.glass.register({
       if not root then return nil, nil, nil end
 
       local len = utf8.len(root)
-      local dir, file = self.dir_file(path:sub(len + 1))
+      local dir, file = self.dir_file(path:sub(len + 1) --[[@as string]])
       if not dir then return nil, nil, nil end
 
       return root, dir, file
@@ -78,7 +78,7 @@ local FdClass = Glu.glass.register({
     function self.file_exists(path)
       ___.v.type(path, "string", 1, false)
 
-      local attr, message, code = lfs.attributes(path)
+      local attr = lfs.attributes(path)
       if not attr then return false end
 
       return attr.mode == "file"
@@ -95,7 +95,7 @@ local FdClass = Glu.glass.register({
     function self.dir_exists(path)
       ___.v.type(path, "string", 1, false)
 
-      local attr, message, code = lfs.attributes(path)
+      local attr = lfs.attributes(path)
       if not attr then return false end
 
       return attr.mode == "directory"
@@ -103,7 +103,7 @@ local FdClass = Glu.glass.register({
 
     --- Reads a file.
     ---@param path string The path to the file.
-    ---@param binary boolean Whether the file is binary (default false).
+    ---@param binary? boolean Whether the file is binary (default false).
     ---@return string|nil data The file contents, or nil on failure.
     ---@return string|nil error The error message, if the read failed.
     ---@return number|nil code The error code, if the read failed.
@@ -161,9 +161,10 @@ local FdClass = Glu.glass.register({
     --- Writes to a file.
     ---@param path string The path to the file.
     ---@param data string The data to write to the file.
-    ---@param overwrite boolean Whether to overwrite the file (default false).
-    ---@param binary boolean Whether the file is binary (default false).
-    ---@return string|table path The path to the file or nil, a table with the error and code, or the attributes of the file.
+    ---@param overwrite? boolean Whether to overwrite the file (default false).
+    ---@param binary? boolean Whether the file is binary (default false).
+    ---@return string|nil path The path to the file, or nil on failure.
+    ---@return table|nil info The attributes of the file, or a table with the error and code on failure.
     ---@example
     --- ```lua
     --- fd.write_file("path/to/file.txt", "contents of file")
@@ -206,7 +207,7 @@ local FdClass = Glu.glass.register({
       local num = num1 + num2
       if num == 0 then return path, 0 end
 
-      return result, num
+      return result --[[@as string]], num
     end
 
     --- Determines which path separator a path uses.
@@ -303,11 +304,11 @@ local FdClass = Glu.glass.register({
 
       path = self.fix_path(path)
       path = ___.string.append(path, sep)
-      local root
-      root, path, _ = self.root_dir_file(path)
-      if path[1] == sep then path = path:sub(2) end
+      local root, rest = self.root_dir_file(path)
+      if not root or not rest then return nil, "Invalid path '" .. path .. "'", nil end
+      if rest:sub(1, 1) == sep then rest = rest:sub(2) end
 
-      local dirs = path:split(sep)
+      local dirs = rest:split(sep)
       local target = root
       dirs = table.n_filter(dirs, function(dir) return dir ~= "" end)
 
@@ -342,7 +343,7 @@ local FdClass = Glu.glass.register({
       local parts = { rex.match(path, "^([a-zA-Z]:(\\\\{1,2}|/{1,2})|/{1,2})(?:.*)$") }
       if not parts then return nil end
 
-      local root, slash = parts[1], parts[2] or ""
+      local root = parts[1]
 
       return root
     end
@@ -412,7 +413,6 @@ local FdClass = Glu.glass.register({
       local result = {}
 
       for file in lfs.dir(path) do
-        local attr = lfs.attributes(path .. "/" .. file)
         table.insert(result, file)
       end
 
@@ -473,7 +473,7 @@ local FdClass = Glu.glass.register({
           ___.get_last_traceback_line())
       end,
 
-      path_table = function(paths, argument_index, allow_nil)
+      path_table = function(paths, _, allow_nil)
         ___.v.uniform(paths, "string", 1, false)
         ___.v.type(allow_nil, "boolean", 2, true)
 

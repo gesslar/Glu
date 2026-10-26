@@ -1,6 +1,6 @@
 {
   "name": "@gesslar/glu",
-  "version": "2.4.0",
+  "version": "2.5.0",
   "description": "A modular utility library for Mudlet that just works. No fuss, no muss.",
   "scripts": {
     "build": "npx -y @gesslar/muddy",
@@ -17,7 +17,9 @@
     "minor": "npx -y @gesslar/muddy version minor --package && npm i",
     "patch": "npx -y @gesslar/muddy version patch --package && npm i",
     "update": "npx -y npm-check-updates -u && npm install",
-    "prepack": "npm run build:single && npm run build:lib"
+    "prepack": "npm run build:single && npm run build:lib",
+    "publish:dry": "npm publish --dry-run",
+    "publish:npm": "npm publish --//registry.npmjs.org/:_authToken=\"${NPM_ACCESS_TOKEN}\""
   },
   "keywords": [
     "mudlet",

@@ -5,7 +5,7 @@ local RegexClass = Glu.glass.register({
   setup = function(___, self)
     self.http_url = "^(https?:\\/\\/)((([A-Za-z0-9-]+\\.)+[A-Za-z]{2,})|localhost)(:\\d+)?(\\/[^\\s]*)?$"
   end,
-  valid = function(___, self)
+  valid = function(___)
     return {
       regex = function(value, pattern, argument_index, nil_allowed)
         if nil_allowed and value == nil then

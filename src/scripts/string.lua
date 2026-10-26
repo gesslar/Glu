@@ -388,7 +388,7 @@ local StringClass = Glu.glass.register({
           table.insert(token_list, nearest_token)
 
           -- Continue with remaining text
-          work = work:sub(nearest_to + 1)
+          work = work:sub(nearest_to + 1) --[[@as string]]
         else
           -- No match found — remaining text gets default token
           table.insert(results, work)
@@ -531,7 +531,7 @@ local StringClass = Glu.glass.register({
       local curr_is_num = false
 
       for i = 1, #str do
-        local c = str:sub(i, i)
+        local c = str:sub(i, i) --[[@as string]]
         local new_is_num = self.is_numeric(c)
 
         if i > 1 and new_is_num ~= curr_is_num then
