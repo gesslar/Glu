@@ -2,7 +2,7 @@ local QueueStackClass = Glu.glass.register({
   name = "queue_stack",
   class_name = "QueueStackClass",
   dependencies = { "table" },
-  setup = function(___, self, opts, container)
+  setup = function(___, self, opts)
     local funcs = ___.table.n_cast(opts.funcs or {})
     ___.v.n_uniform(funcs, "function", 2, false)
 
@@ -28,7 +28,7 @@ local QueueStackClass = Glu.glass.register({
     --- Shifts the next task off the queue and executes it with the provided arguments.
     ---
     ---@param ... any The arguments to pass to the task function.
-    ---@return QueueStackClass self The queue object.
+    ---@return table self The queue object.
     ---@return number|nil count The number of remaining tasks, or nil when the queue is empty.
     ---@return any ... Any results returned by the executed task.
     function self.execute(...)

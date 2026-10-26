@@ -323,7 +323,7 @@ if not _G["Glu"] then
     local handler_name = "glu_sysUninstall_" .. Glu.id()
     instance.handler_name = handler_name
     registerNamedEventHandler("glu", handler_name, "sysUninstall",
-      function(event, p)
+      function(_, p)
         if p == instance.package_name then
           deleteNamedEventHandler("glu", handler_name)
           instance = nil
@@ -492,7 +492,6 @@ if not _G["Glu"] then
 
         -- Handle adoptions
         if class_opts.adopts then
-          local mt = getmetatable(self)
           local adopted_methods = {}
 
           for class_name, adoption in pairs(class_opts.adopts) do

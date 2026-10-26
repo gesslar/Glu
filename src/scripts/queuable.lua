@@ -7,7 +7,7 @@ local QueuableClass = Glu.glass.register({
       methods = { "push", "shift", "pop", "unshift" }
     }
   },
-  setup = function(___, self, opts, container)
+  setup = function(___, self)
     self.stack = {}
   end
 })

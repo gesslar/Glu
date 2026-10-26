@@ -12,7 +12,7 @@ local HttpRequestClass = Glu.glass.register({
     --- `http_response`, writes the body to `saveTo` when requested, invokes the
     --- callback, and cleans up its event handlers.
     ---
-    ---@return object request The request object.
+    ---@return table request The request object.
     ---@example
     --- ```lua
     --- request.execute()
@@ -36,9 +36,8 @@ local HttpRequestClass = Glu.glass.register({
 
         assert(ob, "HTTP request not found")
 
-        local result = {}
         if self.options.saveTo and not response_data.error then
-          result.write = { ___.fd.write_file(self.options.saveTo, response_data.data) }
+          ___.fd.write_file(self.options.saveTo, response_data.data)
         end
 
         local cb = self.options.callback
@@ -72,7 +71,7 @@ local HttpRequestClass = Glu.glass.register({
       end
 
       for _, event in ipairs(events) do
-        local event_type, event_name = unpack(event)
+        local _, event_name = unpack(event)
         registerNamedEventHandler(
           self.id,
           event_name,
@@ -109,7 +108,7 @@ local HttpRequestClass = Glu.glass.register({
 
       assert(type(func) == "function", "HTTP method " .. func_name .. " not found")
 
-      local ok, err, result = pcall(
+      local ok, err = pcall(
         self.custom and
           function() return func(self.options.method, self.options.url, self.options.headers) end or
           function() return func(self.options.url, self.options.headers) end

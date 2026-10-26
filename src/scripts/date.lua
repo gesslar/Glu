@@ -2,7 +2,7 @@ local DateClass = Glu.glass.register({
   class_name = "DateClass",
   name = "date",
   dependencies = {},
-  setup = function(___, self, opts)
+  setup = function(___, self)
     local v = ___.v
 
     -- Calendar approximations used when formatting long durations.
@@ -18,8 +18,8 @@ local DateClass = Glu.glass.register({
     ---@param seconds number The number of seconds to convert.
     ---@param as_string boolean|nil Whether to return a single formatted string instead of three values. (Optional. Default is false.)
     ---@return string hours The zero-padded hours, or the single formatted string when `as_string` is true.
-    ---@return string minutes The zero-padded minutes. Not returned when `as_string` is true.
-    ---@return string seconds The zero-padded seconds. Not returned when `as_string` is true.
+    ---@return string? minutes The zero-padded minutes. Not returned when `as_string` is true.
+    ---@return string? seconds The zero-padded seconds. Not returned when `as_string` is true.
     ---@example
     --- ```lua
     --- date.shms(3661)
@@ -94,11 +94,11 @@ local DateClass = Glu.glass.register({
           return "0s"
         end
 
-        return table.concat(r, " ")
+        return table.concat(r, " ") --[[@as string]]
       else
-        local result_hours = string.format("%02d", hh)
-        local result_minutes = string.format("%02d", mm)
-        local result_seconds = string.format("%02d", ss)
+        local result_hours = string.format("%02d", hh) --[[@as string]]
+        local result_minutes = string.format("%02d", mm) --[[@as string]]
+        local result_seconds = string.format("%02d", ss) --[[@as string]]
         return result_hours, result_minutes, result_seconds
       end
     end

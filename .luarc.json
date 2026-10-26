@@ -4,6 +4,10 @@
   },
   "diagnostics": {
     "globals": [],
+    "unusedLocalExclude": [
+      "___",
+      "*Class"
+    ],
     "ignoredFiles": "Disable"
   },
   "workspace": {

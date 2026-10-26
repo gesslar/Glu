@@ -3,7 +3,6 @@ local ColourClass = Glu.glass.register({
   name = "colour",
   dependencies = { "number" },
   setup = function(___, self)
-    local v = self.v
 
     -- Converts RGB to unrounded HSL (degrees, percent, percent). Also reports
     -- whether the colour is achromatic (a grey), in which case its hue is
@@ -566,7 +565,7 @@ local ColourClass = Glu.glass.register({
     end
   end,
   -- Validations
-  valid = function(___, self)
+  valid = function(___)
     return {
       rgb_table = function(colour, argument_index, nil_allowed)
         if nil_allowed and colour == nil then return end

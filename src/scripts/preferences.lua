@@ -29,7 +29,7 @@ local PreferencesClass = Glu.glass.register({
       -- is never mutated. Mutating it aliases the returned prefs to the caller's
       -- defaults, which silently corrupts any later "fall back to defaults" logic.
       if not io.exists(path) then
-        return table.deepcopy(defaults)
+        return table.deepcopy(defaults) --[[@as table]]
       end
 
       local prefs = {}

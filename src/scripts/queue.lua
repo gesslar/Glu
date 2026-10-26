@@ -69,7 +69,7 @@ local QueueClass = Glu.glass.register({
     ---
     ---@param id string The identifier of the queue to shift from.
     ---@return any item The next item removed from the queue, or nil on failure.
-    ---@return string err An error message if the queue could not be found.
+    ---@return string|nil err An error message if the queue could not be found.
     function self.shift(id)
       ___.v.type(id, "string", 1, false)
 

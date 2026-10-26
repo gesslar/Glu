@@ -12,7 +12,7 @@ local DependencyQueueClass = Glu.glass.register({
     ---
     ---@param packages table List of package descriptors, each a {name, url} table.
     ---@param cb function Callback called with a success boolean and a message string when finished.
-    ---@return object self The dependency queue object.
+    ---@return table|nil self The dependency queue object, or nil when every package is already installed.
     function self.new_dependency_queue(packages, cb)
       local installed = getPackages()
       local not_installed = table.n_filter(packages, function(package)
@@ -71,7 +71,7 @@ local DependencyQueueClass = Glu.glass.register({
       end
 
       registerNamedEventHandler("glu", self.handler_name, "sysInstallPackage",
-        function(event, package, file)
+        function(_, _, file)
           -- sysInstallPackage reports the file Mudlet was asked to install, so
           -- the same UUID path that identifies our downloads identifies our
           -- installs. sysInstall carries only a package name, which any other
@@ -81,7 +81,7 @@ local DependencyQueueClass = Glu.glass.register({
           self.discard_temp()
           ___.table.shift(self.packages)
           tempTimer(1, function()
-            local q, count = self.queue.execute()
+            self.queue.execute()
             if #self.packages == 0 then
               self.cb(true, nil)
               self.clean_up()
@@ -91,7 +91,7 @@ local DependencyQueueClass = Glu.glass.register({
       )
 
       registerNamedEventHandler("glu", self.handler_name .. "_download_done", "sysDownloadDone",
-        function(event, local_file)
+        function(_, local_file)
           if not self.is_ours(local_file) then return end
 
           installPackage(self.current.target)
@@ -99,7 +99,7 @@ local DependencyQueueClass = Glu.glass.register({
       )
 
       registerNamedEventHandler("glu", self.handler_name .. "_download_error", "sysDownloadError",
-        function(event, err, local_file, url)
+        function(_, err, local_file)
           if not self.is_ours(local_file) then return end
 
           local name = self.current.package.name

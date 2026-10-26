@@ -325,8 +325,8 @@ local NumberClass = Glu.glass.register({
     end
 
     --- Calculates what percentage one number is of another
-    ---@param value number The current value
-    ---@param total number The total value
+    ---@param numerator number The current value
+    ---@param denominator number The total value
     ---@param round_digits? number Optional number of decimal places to round to
     ---@return number result The percentage
     ---@example
@@ -398,7 +398,7 @@ local NumberClass = Glu.glass.register({
       return self.sum(values) / #values
     end
   end,
-  valid = function(___, self)
+  valid = function(___)
     return {
       range = function(value, min, max, argument_index, nil_allowed)
         if nil_allowed and value == nil then

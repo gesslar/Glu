@@ -353,7 +353,7 @@ local TableClass = Glu.glass.register({
       local snipped = {}
       if not stop then stop = start end
       local count = stop - start + 1
-      for i = 1, count do
+      for _ = 1, count do
         table.insert(snipped, table.remove(t, start))
       end
       return t, snipped
@@ -677,13 +677,11 @@ local TableClass = Glu.glass.register({
     function self.unzip(tbl)
       ___.v.indexed(tbl, 1, false)
 
-      local size_of_table = #tbl
       -- Ensure that all sub-tables are of the same length
       local size_of_elements = #tbl[1]
       for _, t in ipairs(tbl) do ___.v.test(size_of_elements == #t, t, 1, false) end
 
       local num_new_sub_tables = size_of_elements -- yes, this is redundant, but it's more readable
-      local new_sub_table_size = size_of_table -- this is the size of the sub-tables
       local result = {}
 
       for i = 1, num_new_sub_tables do
