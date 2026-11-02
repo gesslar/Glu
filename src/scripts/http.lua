@@ -156,13 +156,15 @@ local HttpClass = Glu.glass.register({
       return request
     end
 
-    --- Removes a tracked HTTP request from the request list by its id.
+    --- Removes a tracked HTTP request from the request list by its id, along
+    --- with its event handlers. Its callback will not be called.
     ---
     ---@param id string The id of the request to remove.
     ---@return nil result Nothing.
     function self.delete_request(id)
       for i = 1, #requests do
         if requests[i].id == id then
+          deleteAllNamedEventHandlers(id)
           table.remove(requests, i)
           break
         end
