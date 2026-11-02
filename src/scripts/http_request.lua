@@ -93,13 +93,32 @@ local HttpRequestClass = Glu.glass.register({
 
             local result
             local args = only_indexed({ ... })
+            -- Custom events carry the method third; the rest then line up
+            -- with every other event.
+            local method = self.custom and table.remove(args, 3) or nil
             if rex.match(e, "sys(?:\\w+)HttpError$") then
-              result = ___.table.allocate({ "error", "url", "server" }, args)
+              result = {
+                error = args[1],
+                url = args[2],
+                server = args[3],
+                body = args[4],
+                request_id = args[5],
+              }
             elseif rex.match(e, "sys(?:\\w+)HttpDone$") then
-              result = ___.table.allocate({ "url", "data", "server" }, args)
+              result = {
+                url = args[1],
+                data = args[2],
+                server = args[3],
+                request_id = args[4],
+              }
             else
               error("Unknown event: " .. e)
             end
+
+            -- Mudlet versions without request ids leave both sides nil.
+            if result.request_id ~= self.request_id then return end
+
+            result.method = method
 
             ___.table.add(response, result)
 
@@ -108,16 +127,26 @@ local HttpRequestClass = Glu.glass.register({
         )
       end
 
-      local ok, err = pcall(
-        self.custom and
-          function() return func(self.options.method, self.options.url, self.options.headers) end or
-          function() return func(self.options.url, self.options.headers) end
-      )
+      local url, headers = self.options.url, self.options.headers
+      local data = self.options.data or ""
+
+      local ok, err, _, request_id = pcall(function()
+        if self.custom then
+          return func(self.options.method, data, url, headers)
+        elseif lc == "post" or lc == "put" then
+          return func(data, url, headers)
+        end
+
+        return func(url, headers)
+      end)
 
       if not ok then
         deleteAllNamedEventHandlers(self.id)
         error("Error calling HTTP method " .. tostring(self.custom) .. " " .. tostring(func) .. ": " .. tostring(err))
       end
+
+      self.request_id = request_id
+
       return self
     end
   end

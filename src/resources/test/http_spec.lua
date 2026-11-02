@@ -22,13 +22,13 @@ describe("http module", function()
       end)
     end
 
-    _G.postHTTP = function(url, headers)
+    _G.postHTTP = function(data, url, headers)
       tempTimer(0, function()
         raiseEvent("sysPostHttpDone", url, "post response", {})
       end)
     end
 
-    _G.putHTTP = function(url, headers)
+    _G.putHTTP = function(data, url, headers)
       tempTimer(0, function()
         raiseEvent("sysPutHttpDone", url, "put response", {})
       end)
@@ -40,9 +40,9 @@ describe("http module", function()
       end)
     end
 
-    _G.customHTTP = function(method, url, headers)
+    _G.customHTTP = function(method, data, url, headers)
       tempTimer(0, function()
-        raiseEvent("sysCustomHttpDone", url, "custom response", {})
+        raiseEvent("sysCustomHttpDone", url, "custom response", method, {})
       end)
     end
   end)
