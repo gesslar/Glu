@@ -37,7 +37,7 @@ local HttpRequestClass = Glu.glass.register({
         assert(ob, "HTTP request not found")
 
         if self.options.saveTo and not response_data.error then
-          ___.fd.write_file(self.options.saveTo, response_data.data)
+          ___.fd.write_file(self.options.saveTo, response_data.data, true, true)
         end
 
         local cb = self.options.callback
@@ -56,6 +56,15 @@ local HttpRequestClass = Glu.glass.register({
       local lc = table.index_of(owner.http_types, self.options.method) and
           string.lower(self.options.method) or "custom"
       local uc = string.title(___.string.capitalize(lc))
+
+      self.method_lc = lc
+      self.method_uc = uc
+      self.custom = lc == "custom"
+
+      local func_name = string.format("%sHTTP", lc)
+      local func = _G[func_name]
+
+      assert(type(func) == "function", "HTTP method " .. func_name .. " not found")
 
       for _, event in ipairs({ "Done", "Error" }) do
         local event_mod = string.format("sys%sHttp%s", uc, event)
@@ -99,15 +108,6 @@ local HttpRequestClass = Glu.glass.register({
         )
       end
 
-      self.method_lc = lc
-      self.method_uc = uc
-      self.custom = lc == "custom"
-
-      local func_name = string.format("%sHTTP", lc)
-      local func = _G[func_name]
-
-      assert(type(func) == "function", "HTTP method " .. func_name .. " not found")
-
       local ok, err = pcall(
         self.custom and
           function() return func(self.options.method, self.options.url, self.options.headers) end or
@@ -115,6 +115,7 @@ local HttpRequestClass = Glu.glass.register({
       )
 
       if not ok then
+        deleteAllNamedEventHandlers(self.id)
         error("Error calling HTTP method " .. tostring(self.custom) .. " " .. tostring(func) .. ": " .. tostring(err))
       end
       return self

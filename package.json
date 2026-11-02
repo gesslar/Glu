@@ -45,7 +45,7 @@
     "!src/resources/test"
   ],
   "allowScripts": {
-    "@gesslar/toolkit@5.9.1": true
+    "@gesslar/toolkit": true
   },
   "publishConfig": {
     "access": "public"

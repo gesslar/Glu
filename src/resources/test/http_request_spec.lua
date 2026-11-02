@@ -125,6 +125,25 @@ describe("http_request module", function()
         g.http.get({url = "http://example.com/x"}, function() end)
       end)
     end)
+
+    it("registers no handlers when the transport global is missing", function()
+      _G.getHTTP = nil
+      assert.has_error(function()
+        g.http.get({url = "http://example.com/x"}, function() end)
+      end)
+      assert.is_nil(next(registered_names))
+    end)
+
+    it("removes its handlers when the transport throws", function()
+      _G.getHTTP = function() error("boom") end
+      assert.has_error(function()
+        g.http.get({url = "http://example.com/x"}, function() end)
+      end)
+      assert.is_truthy(next(registered_names))
+      for name in pairs(registered_names) do
+        assert.are.same({}, getNamedEventHandlers(name))
+      end
+    end)
   end)
 
   -- ========================================================================
@@ -165,6 +184,15 @@ describe("http_request module", function()
     it("registers the request with its owner", function()
       local r = g.http.get({url = "http://example.com/x"}, function() end)
       assert.are.equal(r, g.http.find_request(r.id))
+    end)
+
+    it("removes its handlers when deleted", function()
+      local called = false
+      local r = g.http.get({url = "http://example.com/x"}, function() called = true end)
+      g.http.delete_request(r.id)
+      assert.are.same({}, getNamedEventHandlers(r.id))
+      raiseEvent("sysGetHttpDone", "http://example.com/x", "body", {})
+      assert.is_false(called)
     end)
   end)
 
@@ -243,6 +271,13 @@ describe("http_request module", function()
       raiseEvent("sysGetHttpDone", "http://example.com/x", "saved body", {})
       assert.is_true(g.fd.file_exists(done_path))
       assert.are.equal("saved body", g.fd.read_file(done_path))
+    end)
+
+    it("overwrites an existing file on a done event", function()
+      g.fd.write_file(done_path, "old body")
+      g.http.download({url = "http://example.com/x", saveTo = done_path}, function() end)
+      raiseEvent("sysGetHttpDone", "http://example.com/x", "new body", {})
+      assert.are.equal("new body", g.fd.read_file(done_path))
     end)
 
     it("does not write to disk on an error event", function()
