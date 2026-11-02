@@ -9,6 +9,7 @@ local HttpClass = Glu.glass.register({
       ___.v.type(options.method, "string", 2, false)
       ___.v.regex(options.url, ___.regex.http_url, 1, false)
       ___.v.type(options.callback, "function", 1, false)
+      ___.v.type(options.data, "string", 1, true)
     end
 
     self.http_types = { "GET", "PUT", "POST", "DELETE" }
@@ -63,6 +64,7 @@ local HttpClass = Glu.glass.register({
     ---
     --- - `url` (`string`) - The URL to request.
     --- - `headers` (`table`) - The headers to send with the request.
+    --- - `data` (`string`) - The body to send with the request.
     ---
     ---@param options table The options for the request.
     ---@param cb function The callback function.
@@ -84,6 +86,7 @@ local HttpClass = Glu.glass.register({
     ---
     --- - `url` (`string`) - The URL to request.
     --- - `headers` (`table`) - The headers to send with the request.
+    --- - `data` (`string`) - The body to send with the request.
     ---
     ---@param options table The options for the request.
     ---@param cb function The callback function.
@@ -128,6 +131,8 @@ local HttpClass = Glu.glass.register({
     --- - `url` (`string`) - The URL to request.
     --- - `method` (`string`) - The HTTP method to use.
     --- - `headers` (`table`) - The headers to send with the request.
+    --- - `data` (`string`) - The body to send with the request. Used by `POST`,
+    ---   `PUT`, and custom methods.
     ---
     ---@param options table The options for the request.
     ---@param cb function The callback function.

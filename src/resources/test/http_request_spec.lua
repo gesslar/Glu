@@ -101,22 +101,87 @@ describe("http_request module", function()
       assert.are.equal("b", called.headers.A)
     end)
 
-    it("passes only url and headers to a standard transport", function()
-      local arg_count
-      _G.postHTTP = function(...) arg_count = select("#", ...) end
-      g.http.post({url = "http://example.com/x"}, function() end)
-      assert.are.equal(2, arg_count)
+    it("passes only url and headers to get and delete", function()
+      local get_count, delete_count
+      _G.getHTTP = function(...) get_count = select("#", ...) end
+      _G.deleteHTTP = function(...) delete_count = select("#", ...) end
+      g.http.get({url = "http://example.com/x"}, function() end)
+      g.http.delete({url = "http://example.com/x"}, function() end)
+      assert.are.equal(2, get_count)
+      assert.are.equal(2, delete_count)
     end)
 
-    it("calls customHTTP with the method first for custom methods", function()
-      local called
-      _G.customHTTP = function(method, url, headers)
-        called = {method = method, url = url, headers = headers}
+    it("passes data, url and headers to post and put", function()
+      for _, verb in ipairs({"post", "put"}) do
+        local called
+        _G[verb .. "HTTP"] = function(data, url, headers)
+          called = {data = data, url = url, headers = headers}
+        end
+        g.http[verb]({url = "http://example.com/x", data = "payload", headers = {A = "b"}}, function() end)
+        assert.are.equal("payload", called.data)
+        assert.are.equal("http://example.com/x", called.url)
+        assert.are.equal("b", called.headers.A)
       end
-      g.http.request({url = "http://example.com/x", method = "PATCH"}, function() end)
+    end)
+
+    it("sends an empty body when post has no data", function()
+      local sent
+      _G.postHTTP = function(data) sent = data end
+      g.http.post({url = "http://example.com/x"}, function() end)
+      assert.are.equal("", sent)
+    end)
+
+    it("errors when data is not a string", function()
+      assert.has_error(function()
+        g.http.post({url = "http://example.com/x", data = {}}, function() end)
+      end)
+    end)
+
+    it("calls customHTTP with the method, data, url and headers", function()
+      local called
+      _G.customHTTP = function(method, data, url, headers)
+        called = {method = method, data = data, url = url, headers = headers}
+      end
+      g.http.request({
+        url = "http://example.com/x",
+        method = "PATCH",
+        data = "payload",
+        headers = {A = "b"},
+      }, function() end)
       assert.is_truthy(called)
       assert.are.equal("PATCH", called.method)
+      assert.are.equal("payload", called.data)
       assert.are.equal("http://example.com/x", called.url)
+      assert.are.equal("b", called.headers.A)
+    end)
+
+    -- These run Mudlet's own transports, which reject a bad signature as soon as
+    -- they're called. Nothing listens on port 1, and after_each removes the
+    -- handlers before the resulting error event can arrive.
+    describe("against Mudlet's real functions", function()
+      local unreachable = "http://localhost:1/"
+
+      before_each(function()
+        _G.getHTTP = real_getHTTP
+        _G.postHTTP = real_postHTTP
+        _G.putHTTP = real_putHTTP
+        _G.deleteHTTP = real_deleteHTTP
+        _G.customHTTP = real_customHTTP
+      end)
+
+      for _, verb in ipairs({"get", "post", "put", "delete"}) do
+        it("accepts the arguments Glu sends for " .. verb, function()
+          assert.has_no.errors(function()
+            g.http[verb]({url = unreachable, data = "payload"}, function() end)
+          end)
+        end)
+      end
+
+      it("accepts the arguments Glu sends for a custom method", function()
+        assert.has_no.errors(function()
+          g.http.request({url = unreachable, method = "PATCH", data = "payload"}, function() end)
+        end)
+      end)
     end)
 
     it("errors when the transport global is missing", function()
@@ -224,6 +289,82 @@ describe("http_request module", function()
       raiseEvent("sysGetHttpDone", "http://example.com/x", "body", {})
       assert.is_nil(g.http.find_request(id))
     end)
+
+    it("leaves request_id nil when the done event does not carry one", function()
+      local got
+      g.http.get({url = "http://example.com/x"}, function(resp) got = resp end)
+      raiseEvent("sysGetHttpDone", "http://example.com/x", "the body", {})
+      assert.is_truthy(got)
+      assert.is_nil(got.result.request_id)
+    end)
+
+    it("exposes the request id Mudlet appends to a done event", function()
+      _G.getHTTP = function(url) return true, url, 42 end
+      local got
+      local r = g.http.get({url = "http://example.com/x"}, function(resp) got = resp end)
+      raiseEvent("sysGetHttpDone", "http://example.com/x", "the body", {}, 42)
+      assert.is_truthy(got)
+      assert.are.equal("the body", got.result.data)
+      assert.are.equal(42, got.result.request_id)
+      assert.are.equal(r.id, got.id)
+    end)
+
+    it("completes only the request whose id the event carries", function()
+      local next_id = 0
+      _G.getHTTP = function(url)
+        next_id = next_id + 1
+        return true, url, next_id
+      end
+      local first, second
+      g.http.get({url = "http://example.com/same"}, function(resp) first = resp end)
+      g.http.get({url = "http://example.com/same"}, function(resp) second = resp end)
+
+      raiseEvent("sysGetHttpDone", "http://example.com/same", "second body", {}, 2)
+      assert.is_nil(first)
+      assert.are.equal("second body", second.result.data)
+
+      raiseEvent("sysGetHttpDone", "http://example.com/same", "first body", {}, 1)
+      assert.are.equal("first body", first.result.data)
+    end)
+
+    it("completes a redirected request whose event reports a different url", function()
+      _G.getHTTP = function(url) return true, url, 7 end
+      local got
+      g.http.get({url = "http://example.com/x"}, function(resp) got = resp end)
+      raiseEvent("sysGetHttpDone", "http://cdn.example.com/y", "the body", {}, 7)
+      assert.are.equal("http://cdn.example.com/y", got.result.url)
+    end)
+
+    it("ignores an event for another request, leaving this one tracked", function()
+      _G.getHTTP = function(url) return true, url, 1 end
+      local called = false
+      local r = g.http.get({url = "http://example.com/x"}, function() called = true end)
+      raiseEvent("sysGetHttpDone", "http://example.com/x", "not ours", {}, 99)
+      assert.is_false(called)
+      assert.are.equal(r, g.http.find_request(r.id))
+    end)
+
+    it("maps a custom done event around its method argument", function()
+      _G.customHTTP = function(_, _, url) return true, url, 5 end
+      local got
+      g.http.request({url = "http://example.com/x", method = "PATCH"}, function(resp) got = resp end)
+      local server = {headers = {}}
+      raiseEvent("sysCustomHttpDone", "http://example.com/x", "the body", "PATCH", server, 5)
+      assert.is_truthy(got)
+      assert.are.equal("the body", got.result.data)
+      assert.are.equal("PATCH", got.result.method)
+      assert.are.equal(5, got.result.request_id)
+      assert.is_table(got.result.server)
+    end)
+
+    it("maps a custom done event from a Mudlet without request ids", function()
+      local got
+      g.http.request({url = "http://example.com/x", method = "PATCH"}, function(resp) got = resp end)
+      raiseEvent("sysCustomHttpDone", "http://example.com/x", "the body", "PATCH", {})
+      assert.is_truthy(got)
+      assert.are.equal("PATCH", got.result.method)
+      assert.is_nil(got.result.request_id)
+    end)
   end)
 
   -- ========================================================================
@@ -245,6 +386,48 @@ describe("http_request module", function()
       local id = r.id
       raiseEvent("sysGetHttpError", "boom", "http://example.com/x", {})
       assert.is_nil(g.http.find_request(id))
+    end)
+
+    it("leaves body and request_id nil when the error event does not carry them", function()
+      local got
+      g.http.get({url = "http://example.com/x"}, function(resp) got = resp end)
+      raiseEvent("sysGetHttpError", "boom", "http://example.com/x", {})
+      assert.is_truthy(got)
+      assert.is_nil(got.result.body)
+      assert.is_nil(got.result.request_id)
+    end)
+
+    it("exposes the server's response body on an error event", function()
+      local got
+      g.http.get({url = "http://example.com/x"}, function(resp) got = resp end)
+      raiseEvent("sysGetHttpError", "boom", "http://example.com/x", {}, "not found page")
+      assert.is_truthy(got)
+      assert.are.equal("not found page", got.result.body)
+      assert.is_nil(got.result.request_id)
+    end)
+
+    it("maps a custom error event around its method argument", function()
+      _G.customHTTP = function(_, _, url) return true, url, 5 end
+      local got
+      g.http.request({url = "http://example.com/x", method = "PATCH"}, function(resp) got = resp end)
+      raiseEvent("sysCustomHttpError", "boom", "http://example.com/x", "PATCH", {}, "not found page", 5)
+      assert.is_truthy(got)
+      assert.are.equal("boom", got.result.error)
+      assert.are.equal("PATCH", got.result.method)
+      assert.are.equal("not found page", got.result.body)
+      assert.are.equal(5, got.result.request_id)
+    end)
+
+    it("exposes the request id after the body on an error event", function()
+      _G.getHTTP = function(url) return true, url, 42 end
+      local got
+      local r = g.http.get({url = "http://example.com/x"}, function(resp) got = resp end)
+      raiseEvent("sysGetHttpError", "boom", "http://example.com/x", {}, "not found page", 42)
+      assert.is_truthy(got)
+      assert.are.equal("boom", got.result.error)
+      assert.are.equal("not found page", got.result.body)
+      assert.are.equal(42, got.result.request_id)
+      assert.are.equal(r.id, got.id)
     end)
   end)
 
