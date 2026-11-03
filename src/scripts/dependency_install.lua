@@ -37,7 +37,7 @@ local DependencyInstallClass = Glu.glass.register({
           local ok, err = ___.fd.assure_dir(dir)
           if not ok then
             local reason = err or "unknown error"
-            self.fail(f "Could not create a temporary directory for `<b>{name}</b>`: {reason}\n")
+            self.fail("Could not create a temporary directory for `<b>" .. name .. "</b>`: " .. reason .. "\n")
             return
           end
 
@@ -54,7 +54,7 @@ local DependencyInstallClass = Glu.glass.register({
           local started, refusal = downloadFile(target, package.url)
           if not started then
             local reason = refusal or "unknown error"
-            self.fail(f "Failed to download dependency `<b>{name}</b>`: {reason}\nCleaning up.\n")
+            self.fail("Failed to download dependency `<b>" .. name .. "</b>`: " .. reason .. "\nCleaning up.\n")
             return
           end
 
@@ -66,10 +66,8 @@ local DependencyInstallClass = Glu.glass.register({
               if not self.is_ours(target) then return end
 
               self.current.timer = nil
-
-              -- Redeclared because f reads locals on the stack, not captured variables.
-              local name, timeout = name, timeout
-              self.fail(f "Timed out downloading dependency `<b>{name}</b>` after {timeout} seconds.\nCleaning up.\n")
+              self.fail("Timed out downloading dependency `<b>" .. name .. "</b>` after " ..
+                timeout .. " seconds.\nCleaning up.\n")
             end)
           end
         end
@@ -92,8 +90,10 @@ local DependencyInstallClass = Glu.glass.register({
           if errors then
             local name = self.current.package.name
             local removed, refusal = uninstallPackage(installed_name)
-            local outcome = removed and "It has been uninstalled." or f "It could not be uninstalled: {refusal}"
-            self.fail(f "Dependency `<b>{name}</b>` installed with errors: {errors}\n{outcome}\nCleaning up.\n")
+            local outcome = removed and "It has been uninstalled." or
+                "It could not be uninstalled: " .. tostring(refusal)
+            self.fail("Dependency `<b>" .. name .. "</b>` installed with errors: " .. errors ..
+              "\n" .. outcome .. "\nCleaning up.\n")
             return
           end
 
@@ -121,7 +121,7 @@ local DependencyInstallClass = Glu.glass.register({
           if not started then
             local name = self.current.package.name
             local reason = refusal or "unknown error"
-            self.fail(f "Failed to install dependency `<b>{name}</b>`: {reason}\nCleaning up.\n")
+            self.fail("Failed to install dependency `<b>" .. name .. "</b>`: " .. reason .. "\nCleaning up.\n")
             return
           end
 
@@ -133,7 +133,7 @@ local DependencyInstallClass = Glu.glass.register({
           tempTimer(0, function()
             if self.current and self.current.target == target then
               local name = self.current.package.name
-              self.fail(f "Dependency `<b>{name}</b>` was removed as soon as it was installed.\nCleaning up.\n")
+              self.fail("Dependency `<b>" .. name .. "</b>` was removed as soon as it was installed.\nCleaning up.\n")
             end
           end)
         end
@@ -146,7 +146,7 @@ local DependencyInstallClass = Glu.glass.register({
           local name = self.current.package.name
           local reason = err or "unknown error"
 
-          self.fail(f "Failed to download dependency `<b>{name}</b>`: {reason}\nCleaning up.\n")
+          self.fail("Failed to download dependency `<b>" .. name .. "</b>`: " .. reason .. "\nCleaning up.\n")
         end
       )
 
