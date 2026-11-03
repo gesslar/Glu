@@ -73,6 +73,37 @@ describe("queue module", function()
   -- push (by id)
   -- ========================================================================
 
+  describe("delete", function()
+    it("should remove a queue by id", function()
+      local qs = g.queue.new_queue({})
+
+      assert.is_true(g.queue.delete(qs.id))
+      assert.is_nil(g.queue.get(qs.id))
+    end)
+
+    it("should leave other queues in place", function()
+      local keep = g.queue.new_queue({})
+      local remove = g.queue.new_queue({})
+
+      g.queue.delete(remove.id)
+
+      assert.are.equal(keep, g.queue.get(keep.id))
+    end)
+
+    it("should return nil and a message for unknown id", function()
+      local removed, err = g.queue.delete("nonexistent-id")
+
+      assert.is_nil(removed)
+      assert.is_truthy(err)
+    end)
+
+    it("should error on non-string id", function()
+      assert.has_error(function()
+        g.queue.delete(123)
+      end)
+    end)
+  end)
+
   describe("push", function()
     it("should add a function to a queue by id", function()
       local qs = g.queue.new_queue({})

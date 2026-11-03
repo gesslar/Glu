@@ -45,6 +45,25 @@ local QueueClass = Glu.glass.register({
       return nil, f "Queue not found for id `{id}`."
     end
 
+    --- Removes a queue from the list of queues by its identifier. Tasks already
+    --- running are unaffected, and the queue object itself keeps working for
+    --- anything still holding it.
+    ---
+    ---@param id string The identifier of the queue to remove
+    ---@return boolean|nil removed True if the queue was removed, or nil if not found
+    ---@return string|nil err An error message if the queue could not be found
+    function self.delete(id)
+      ___.v.type(id, "string", 1, false)
+
+      for i, q in ipairs(self.queues) do
+        if q.id == id then
+          table.remove(self.queues, i)
+          return true
+        end
+      end
+      return nil, f "Queue not found for id `{id}`."
+    end
+
     --- Add a function to the end of a queue by its identifier.
     ---
     ---@param id string The identifier of the queue to add the function to

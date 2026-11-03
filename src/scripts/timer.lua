@@ -81,7 +81,7 @@ local TimerClass = Glu.glass.register({
         perform_multi_timer_function(name)
       end)
 
-      if not timer_id then
+      if timer_id == -1 then
         ___.timer.kill_multi(name)
         return false, "error creating multi timer with name " .. name
       end

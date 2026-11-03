@@ -19,11 +19,11 @@ describe("http_request module", function()
     real_customHTTP = _G.customHTTP
 
     -- Silent transports by default; tests fire events manually when needed
-    _G.getHTTP = function() end
-    _G.postHTTP = function() end
-    _G.putHTTP = function() end
-    _G.deleteHTTP = function() end
-    _G.customHTTP = function() end
+    _G.getHTTP = function(url) return true, url end
+    _G.postHTTP = function(_, url) return true, url end
+    _G.putHTTP = function(_, url) return true, url end
+    _G.deleteHTTP = function(url) return true, url end
+    _G.customHTTP = function(_, _, url) return true, url end
 
     -- Record every named handler so we can tear them all down afterwards,
     -- otherwise un-fired requests leave handlers that cross-talk into later
@@ -269,7 +269,7 @@ describe("http_request module", function()
     it("invokes the callback with an http_response on a done event", function()
       local got
       local r = g.http.get({url = "http://example.com/x"}, function(resp) got = resp end)
-      raiseEvent("sysGetHttpDone", "http://example.com/x", "the body", {code = 200})
+      raiseEvent("sysGetHttpDone", "http://example.com/x", "the body", {headers = {}, cookies = {}})
       assert.is_truthy(got)
       assert.is_truthy(got.result)
       assert.are.equal(r.id, got.id)

@@ -9,7 +9,8 @@ local FuncClass = Glu.glass.register({
     ---@param func function The function to run after the delay.
     ---@param delay number The delay in seconds before the function runs.
     ---@param ... any Additional arguments passed to the function when it runs.
-    ---@return number timer_id The timer id returned by tempTimer.
+    ---@return number|nil timer_id The timer id returned by tempTimer, or nil if the timer could not be created.
+    ---@return string? err The reason the timer could not be created.
     ---@example
     --- ```lua
     --- func.delay(function() echo("hi") end, 5)
@@ -19,10 +20,13 @@ local FuncClass = Glu.glass.register({
       ___.v.type(delay, "number", 2, false)
 
       local args = { ... }
-      ---@diagnostic disable-next-line: return-type-mismatch
-      return tempTimer(delay, function()
+      local timer_id, err = tempTimer(delay, function()
         func(unpack(args))
       end)
+
+      if timer_id == -1 then return nil, err end
+
+      return timer_id
     end
 
     --- Wraps a function with another function.

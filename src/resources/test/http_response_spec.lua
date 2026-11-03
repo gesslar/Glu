@@ -26,10 +26,10 @@ describe("http_response module", function()
   end)
 
   it("should expose result fields for a done-shaped response", function()
-    local r = http_response({id = "1", url = "http://x", data = "payload", server = {code = 200}}, g.http)
+    local r = http_response({id = "1", url = "http://x", data = "payload", server = {headers = {["Content-Type"] = "text/plain"}, cookies = {}}}, g.http)
     assert.are.equal("http://x", r.result.url)
     assert.are.equal("payload", r.result.data)
-    assert.are.equal(200, r.result.server.code)
+    assert.are.equal("text/plain", r.result.server.headers["Content-Type"])
   end)
 
   it("should expose result fields for an error-shaped response", function()

@@ -793,5 +793,36 @@ describe("glu core framework", function()
     it("should start with glu_sysUninstall_", function()
       assert.is_truthy(g.handler_name:find("^glu_sysUninstall_"))
     end)
+
+    describe("when sysUninstall fires", function()
+      local package_name = "__glu_test_uninstall__"
+      local instance
+
+      local function is_registered()
+        return table.index_of(getNamedEventHandlers("glu"), instance.handler_name) ~= nil
+      end
+
+      before_each(function()
+        instance = Glu(package_name)
+      end)
+
+      after_each(function()
+        deleteNamedEventHandler("glu", instance.handler_name)
+      end)
+
+      it("should remove its handler when its own package is uninstalled", function()
+        assert.is_true(is_registered())
+
+        raiseEvent("sysUninstall", package_name)
+
+        assert.is_false(is_registered())
+      end)
+
+      it("should keep its handler when another package is uninstalled", function()
+        raiseEvent("sysUninstall", "__glu_test_some_other_package__")
+
+        assert.is_true(is_registered())
+      end)
+    end)
   end)
 end)

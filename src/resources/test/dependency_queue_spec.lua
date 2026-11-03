@@ -154,6 +154,20 @@ describe("dependency_queue module", function()
       assert.is_nil(result.queue)
     end)
 
+    it("should remove the queue from the queue list", function()
+      local result = g.dependency_queue.new_dependency_queue(
+        {{name = "__glu_test_fake_cleanup_l__", url = "https://example.com/fake"}},
+        function() end
+      )
+      local id = result.queue.id
+
+      assert.is_truthy(g.dependency_queue.get(id))
+
+      result.clean_up()
+
+      assert.is_nil(g.dependency_queue.get(id))
+    end)
+
     it("should nil out the handler_name", function()
       local result = g.dependency_queue.new_dependency_queue(
         {{name = "__glu_test_fake_cleanup_h__", url = "https://example.com/fake"}},
@@ -176,20 +190,25 @@ describe("dependency_queue module", function()
       real_tempTimer = _G.tempTimer
       real_downloadFile = _G.downloadFile
 
-      -- Mock tempTimer to execute callback immediately (same pattern as Mudlet's own tests)
+      -- Mock tempTimer to execute callback immediately
       _G.tempTimer = function(time, code)
+        -- Zero delay is the guard for a missing install event, which would otherwise
+        -- fire before these specs raise that event by hand.
+        if time == 0 then return 1 end
+
         if type(code) == "function" then
           code()
         elseif type(code) == "string" then
           loadstring(code)()
         end
+        return 1
       end
 
-      -- Mock installPackage to do nothing — we fire sysInstall manually
-      _G.installPackage = function() end
+      -- Mock installPackage to do nothing — we fire sysInstallPackage manually
+      _G.installPackage = function() return true end
 
       -- Mock downloadFile to do nothing — we fire sysDownloadDone/Error manually
-      _G.downloadFile = function() end
+      _G.downloadFile = function(_, url) return true, url end
     end)
 
     after_each(function()
@@ -203,7 +222,7 @@ describe("dependency_queue module", function()
       end
     end)
 
-    it("should complete when sysInstall fires for the package", function()
+    it("should complete when sysInstallPackage fires for the package", function()
       local cb_success = nil
       local cb_message = nil
 
@@ -217,8 +236,8 @@ describe("dependency_queue module", function()
 
       dq.start()
 
-      -- The download lands, then Mudlet fires sysInstall once installed
-      raiseEvent("sysDownloadDone", dq.current.target)
+      -- The download lands, then Mudlet fires sysInstallPackage once installed
+      raiseEvent("sysDownloadDone", dq.current.target, 1024, {})
       raiseEvent("sysInstallPackage", "ThreshCopy", dq.current.target)
 
       assert.is_true(cb_success)
@@ -239,9 +258,9 @@ describe("dependency_queue module", function()
 
       dq.start()
 
-      -- Mudlet fires sysDownloadError(error, local_file, url) for the file we chose
+      -- Mudlet fires sysDownloadError(error, local_file, url, response, body) for the file we chose
       raiseEvent("sysDownloadError", "404 not found", dq.current.target,
-        "https://example.com/fake.mpackage")
+        "https://example.com/fake.mpackage", {}, "")
 
       assert.is_false(cb_success)
       assert.is_truthy(cb_message)
@@ -249,7 +268,7 @@ describe("dependency_queue module", function()
 
     it("should install from the downloaded file when sysDownloadDone fires", function()
       local installed_from = nil
-      _G.installPackage = function(path) installed_from = path end
+      _G.installPackage = function(path) installed_from = path; return true end
 
       local dq = g.dependency_queue.new_dependency_queue(
         {{name = "FakePkgDone", url = "https://example.com/FakePkgDone.mpackage"}},
@@ -259,7 +278,7 @@ describe("dependency_queue module", function()
       dq.start()
 
       local target = dq.current.target
-      raiseEvent("sysDownloadDone", target)
+      raiseEvent("sysDownloadDone", target, 1024, {})
 
       assert.are.equal(target, installed_from)
       dq.clean_up()
@@ -309,10 +328,10 @@ describe("dependency_queue module", function()
       dq.start()
 
       -- First package downloads, then installs
-      raiseEvent("sysDownloadDone", dq.current.target)
+      raiseEvent("sysDownloadDone", dq.current.target, 1024, {})
       raiseEvent("sysInstallPackage", "FakePkgA", dq.current.target)
       -- Second package downloads, then installs
-      raiseEvent("sysDownloadDone", dq.current.target)
+      raiseEvent("sysDownloadDone", dq.current.target, 1024, {})
       raiseEvent("sysInstallPackage", "FakePkgB", dq.current.target)
 
       assert.is_true(cb_success)
@@ -351,21 +370,59 @@ describe("dependency_queue module", function()
     local real_tempTimer
     local real_downloadFile
 
+    -- Uses the real install, timers and uninstall. Only the download is stood in
+    -- for, by writing a package holding this script to the path the queue chose.
+    local function use_real_install(script)
+      _G.tempTimer = real_tempTimer
+      _G.installPackage = real_installPackage
+      _G.downloadFile = function(path, url)
+        local file = assert(io.open(path, "w"))
+        file:write(string.format([[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE MudletPackage>
+<MudletPackage version="1.001">
+  <ScriptPackage>
+    <Script isActive="yes" isFolder="no">
+      <name>probe</name>
+      <packageName></packageName>
+      <script>%s</script>
+      <eventHandlerList />
+    </Script>
+  </ScriptPackage>
+</MudletPackage>
+]], script))
+        file:close()
+        real_tempTimer(0, function() raiseEvent("sysDownloadDone", path, 1024, {}) end)
+        return true, url
+      end
+    end
+
+    local function pump_until(condition)
+      for _ = 1, 60 do
+        if condition() then return end
+        pumpEvents(50)
+      end
+    end
+
     before_each(function()
       real_installPackage = _G.installPackage
       real_tempTimer = _G.tempTimer
       real_downloadFile = _G.downloadFile
 
       _G.tempTimer = function(time, code)
+        -- Zero delay is the guard for a missing install event, which would otherwise
+        -- fire before these specs raise that event by hand.
+        if time == 0 then return 1 end
+
         if type(code) == "function" then
           code()
         elseif type(code) == "string" then
           loadstring(code)()
         end
+        return 1
       end
 
-      _G.installPackage = function() end
-      _G.downloadFile = function() end
+      _G.installPackage = function() return true end
+      _G.downloadFile = function(_, url) return true, url end
     end)
 
     after_each(function()
@@ -374,7 +431,7 @@ describe("dependency_queue module", function()
       _G.downloadFile = real_downloadFile
     end)
 
-    it("should ignore sysInstall for non-matching package names", function()
+    it("should ignore sysInstallPackage for a file that is not ours", function()
       local cb_success = nil
 
       local dq = g.dependency_queue.new_dependency_queue(
@@ -385,7 +442,7 @@ describe("dependency_queue module", function()
       )
 
       dq.start()
-      raiseEvent("sysDownloadDone", dq.current.target)
+      raiseEvent("sysDownloadDone", dq.current.target, 1024, {})
 
       -- Fire an install for a different package's file — should be ignored
       raiseEvent("sysInstallPackage", "SomeOtherPackage", "/tmp/elsewhere/SomeOtherPackage.mpackage")
@@ -413,7 +470,7 @@ describe("dependency_queue module", function()
 
       -- First package fails to download
       raiseEvent("sysDownloadError", "404 not found", dq.current.target,
-        "https://example.com/first")
+        "https://example.com/first", {}, "")
 
       assert.is_false(cb_success)
       assert.is_truthy(cb_message)
@@ -437,7 +494,7 @@ describe("dependency_queue module", function()
       dq.start()
 
       -- First package succeeds
-      raiseEvent("sysDownloadDone", dq.current.target)
+      raiseEvent("sysDownloadDone", dq.current.target, 1024, {})
       raiseEvent("sysInstallPackage", "FakePkgAlpha", dq.current.target)
 
       -- Reset to check second callback
@@ -446,7 +503,7 @@ describe("dependency_queue module", function()
 
       -- Second package fails; current now points at the second download
       raiseEvent("sysDownloadError", "404 not found", dq.current.target,
-        "https://example.com/beta")
+        "https://example.com/beta", {}, "")
 
       assert.is_false(cb_success)
       assert.is_truthy(cb_message)
@@ -460,7 +517,7 @@ describe("dependency_queue module", function()
 
       local handler_name = dq.handler_name
       dq.start()
-      raiseEvent("sysDownloadDone", dq.current.target)
+      raiseEvent("sysDownloadDone", dq.current.target, 1024, {})
       raiseEvent("sysInstallPackage", "FakePkgCleanup", dq.current.target)
 
       -- After completion, handler_name should be nil (cleaned up)
@@ -482,14 +539,14 @@ describe("dependency_queue module", function()
 
       -- Something else in the profile fails to download — a path we did not choose
       raiseEvent("sysDownloadError", "404 not found", "/tmp/theirs.mpackage",
-        "https://elsewhere.example.com/theirs.mpackage")
+        "https://elsewhere.example.com/theirs.mpackage", {}, "")
 
       assert.is_nil(cb_success)
       assert.is_not_nil(dq.handler_name)
       assert.is_not_nil(dq.queue)
 
       -- Our own download and install still complete normally afterwards
-      raiseEvent("sysDownloadDone", dq.current.target)
+      raiseEvent("sysDownloadDone", dq.current.target, 1024, {})
       raiseEvent("sysInstallPackage", "FakePkgMine", dq.current.target)
 
       assert.is_true(cb_success)
@@ -512,7 +569,7 @@ describe("dependency_queue module", function()
         "../other/same.mpackage"
 
       raiseEvent("sysDownloadError", "404 not found", collision,
-        "https://elsewhere.example.com/same.mpackage")
+        "https://elsewhere.example.com/same.mpackage", {}, "")
 
       assert.is_nil(cb_success)
       assert.is_not_nil(dq.queue)
@@ -534,7 +591,7 @@ describe("dependency_queue module", function()
       -- Redirection rewrote the url to a signed path with no recognisable file
       -- name; identity comes from the local path, so this is still ours
       raiseEvent("sysDownloadError", "connection reset", dq.current.target,
-        "https://cdn.example.net/asset/5dd0c819-e4ee-447e-b18f-24a7b5ed17fe?sig=abc")
+        "https://cdn.example.net/asset/5dd0c819-e4ee-447e-b18f-24a7b5ed17fe?sig=abc", {}, "")
 
       assert.is_false(cb_success)
     end)
@@ -566,7 +623,7 @@ describe("dependency_queue module", function()
       assert.are.equal(target, dq.current.target)
 
       -- Our own download and install still proceed normally
-      raiseEvent("sysDownloadDone", target)
+      raiseEvent("sysDownloadDone", target, 1024, {})
       raiseEvent("sysInstallPackage", "FakePkgRace", target)
 
       assert.are.equal(1, #dq.packages)
@@ -592,7 +649,7 @@ describe("dependency_queue module", function()
 
     it("should ignore sysDownloadDone for an unrelated download", function()
       local installed = false
-      _G.installPackage = function() installed = true end
+      _G.installPackage = function() installed = true; return true end
 
       local dq = g.dependency_queue.new_dependency_queue(
         {{name = "FakePkgOther", url = "https://example.com/other.mpackage"}},
@@ -601,10 +658,417 @@ describe("dependency_queue module", function()
 
       dq.start()
 
-      raiseEvent("sysDownloadDone", "/tmp/not-ours.mpackage")
+      raiseEvent("sysDownloadDone", "/tmp/not-ours.mpackage", 1024, {})
 
       assert.is_false(installed)
       dq.clean_up()
+    end)
+
+    it("should fail the queue when downloadFile refuses", function()
+      local cb_success, cb_message
+
+      -- Mudlet's real downloadFile, which refuses this scheme without touching the network
+      _G.downloadFile = real_downloadFile
+
+      local dq = g.dependency_queue.new_dependency_queue(
+        {{name = "FakePkgRefusedDl", url = "ftp://example.com/refused.mpackage"}},
+        function(success, message)
+          cb_success = success
+          cb_message = message
+        end
+      )
+
+      dq.start()
+
+      assert.is_false(cb_success)
+      assert.is_truthy(cb_message:find("FakePkgRefusedDl", 1, true))
+      assert.is_truthy(cb_message:find("unsupported scheme", 1, true))
+      assert.is_nil(dq.queue)
+      assert.is_nil(dq.handler_name)
+    end)
+
+    it("should fail the queue when installPackage refuses", function()
+      local cb_success, cb_message
+
+      -- Mudlet's real installPackage, which refuses a file that doesn't exist
+      _G.installPackage = real_installPackage
+
+      local dq = g.dependency_queue.new_dependency_queue(
+        {{name = "FakePkgRefusedIn", url = "https://example.com/refused.mpackage"}},
+        function(success, message)
+          cb_success = success
+          cb_message = message
+        end
+      )
+
+      dq.start()
+      raiseEvent("sysDownloadDone", dq.current.target, 1024, {})
+
+      assert.is_false(cb_success)
+      assert.is_truthy(cb_message:find("FakePkgRefusedIn", 1, true))
+      assert.is_nil(dq.queue)
+      assert.is_nil(dq.handler_name)
+    end)
+
+    it("should fail the queue when a package installs with errors", function()
+      local cb_success, cb_message
+      local downloads = 0
+      local uninstalled
+
+      local real_uninstallPackage = _G.uninstallPackage
+      finally(function() _G.uninstallPackage = real_uninstallPackage end)
+      _G.uninstallPackage = function(name)
+        uninstalled = name
+        return true
+      end
+
+      _G.downloadFile = function(_, url)
+        downloads = downloads + 1
+        return true, url
+      end
+
+      local dq = g.dependency_queue.new_dependency_queue(
+        {
+          {name = "FakePkgBroken", url = "https://example.com/broken.mpackage"},
+          {name = "FakePkgNever", url = "https://example.com/never.mpackage"},
+        },
+        function(success, message)
+          cb_success = success
+          cb_message = message
+        end
+      )
+
+      dq.start()
+      raiseEvent("sysDownloadDone", dq.current.target, 1024, {})
+      raiseEvent("sysInstallPackage", "NameFromArchive", dq.current.target, "bad trigger; bad script")
+
+      assert.is_false(cb_success)
+      assert.is_truthy(cb_message:find("FakePkgBroken", 1, true))
+      assert.is_truthy(cb_message:find("bad trigger; bad script", 1, true))
+      assert.are.equal("NameFromArchive", uninstalled)
+      assert.are.equal(1, downloads)
+      assert.is_nil(dq.queue)
+      assert.is_nil(dq.handler_name)
+    end)
+
+    it("should report it when a package with errors can't be uninstalled", function()
+      local cb_message
+
+      local real_uninstallPackage = _G.uninstallPackage
+      finally(function() _G.uninstallPackage = real_uninstallPackage end)
+      _G.uninstallPackage = function() return nil, "a profile save is in progress" end
+
+      local dq = g.dependency_queue.new_dependency_queue(
+        {{name = "FakePkgStuck", url = "https://example.com/stuck.mpackage"}},
+        function(_, message) cb_message = message end
+      )
+
+      dq.start()
+      raiseEvent("sysDownloadDone", dq.current.target, 1024, {})
+      raiseEvent("sysInstallPackage", "FakePkgStuck", dq.current.target, "bad script")
+
+      assert.is_truthy(cb_message:find("a profile save is in progress", 1, true))
+    end)
+
+    it("should remove a package that really installs with errors", function()
+      local cb_success, cb_message
+
+      use_real_install("this is not ( lua")
+
+      local before = #getPackages()
+      local dq = g.dependency_queue.new_dependency_queue(
+        {{name = "FakePkgReallyBroken", url = "https://example.com/broken.xml"}},
+        function(success, message)
+          cb_success = success
+          cb_message = message
+        end
+      )
+
+      dq.start()
+      pump_until(function() return cb_success ~= nil end)
+
+      assert.is_false(cb_success)
+      assert.is_truthy(cb_message:find("It has been uninstalled.", 1, true))
+      assert.are.equal(before, #getPackages())
+    end)
+
+    it("should fail the queue when a package is removed before its install event", function()
+      local cb_success, cb_message
+
+      use_real_install("local fine = true")
+
+      -- sysInstall goes out first, and Mudlet then drops sysInstallPackage
+      -- because the package is gone
+      finally(function() deleteAllNamedEventHandlers("glu_test_guard") end)
+      registerNamedEventHandler("glu_test_guard", "remove", "sysInstall", function(_, name)
+        uninstallPackage(name)
+      end)
+
+      local dq = g.dependency_queue.new_dependency_queue(
+        {{name = "FakePkgRemoved", url = "https://example.com/removed.xml"}},
+        function(success, message)
+          cb_success = success
+          cb_message = message
+        end
+      )
+
+      dq.start()
+      pump_until(function() return cb_success ~= nil end)
+
+      assert.is_false(cb_success)
+      assert.is_truthy(cb_message:find("FakePkgRemoved", 1, true))
+      assert.is_nil(dq.queue)
+    end)
+
+    it("should not trip the install guard on a normal install", function()
+      local cb_success, cb_message
+      local installed_name
+
+      use_real_install("local fine = true")
+
+      finally(function()
+        deleteAllNamedEventHandlers("glu_test_guard")
+        if installed_name then uninstallPackage(installed_name) end
+      end)
+      registerNamedEventHandler("glu_test_guard", "note", "sysInstall", function(_, name)
+        installed_name = name
+      end)
+
+      local dq = g.dependency_queue.new_dependency_queue(
+        {{name = "FakePkgFine", url = "https://example.com/fine.xml"}},
+        function(success, message)
+          cb_success = success
+          cb_message = message
+        end
+      )
+
+      dq.start()
+      pump_until(function() return cb_success ~= nil end)
+
+      assert.is_true(cb_success)
+      assert.is_nil(cb_message)
+      assert.is_truthy(installed_name)
+    end)
+
+    describe("when the callback throws", function()
+      it("should still clean up on failure", function()
+        local dq = g.dependency_queue.new_dependency_queue(
+          {{name = "FakePkgThrowFail", url = "https://example.com/fail.mpackage"}},
+          function() error("callback failed") end
+        )
+
+        dq.start()
+
+        assert.is_false(pcall(dq.fail, "failed"))
+        assert.is_nil(dq.handler_name)
+        assert.is_nil(dq.queue)
+      end)
+
+      it("should still clean up on success", function()
+        local pending_timer
+
+        local dq = g.dependency_queue.new_dependency_queue(
+          {{name = "FakePkgThrowOk", url = "https://example.com/ok.mpackage"}},
+          function() error("callback failed") end
+        )
+
+        dq.start()
+
+        -- Holds the step that finishes the queue, so its error stays out of the event handler
+        _G.tempTimer = function(_, code)
+          pending_timer = code
+          return 1
+        end
+
+        local target = dq.current.target
+        raiseEvent("sysDownloadDone", target, 1024, {})
+        raiseEvent("sysInstallPackage", "FakePkgThrowOk", target)
+
+        assert.is_false(pcall(pending_timer))
+        assert.is_nil(dq.handler_name)
+        assert.is_nil(dq.queue)
+      end)
+    end)
+
+    describe("timeout", function()
+      it("should fail the queue when a download stalls", function()
+        local cb_success, cb_message
+        local installed_pkg = false
+
+        _G.tempTimer = real_tempTimer
+        _G.installPackage = function() installed_pkg = true; return true end
+
+        local dq = g.dependency_queue.new_dependency_queue(
+          {{name = "FakePkgStalled", url = "https://example.com/stalled.mpackage"}},
+          function(success, message)
+            cb_success = success
+            cb_message = message
+          end,
+          0.05
+        )
+
+        dq.start()
+        local target = dq.current.target
+
+        pump_until(function() return cb_success ~= nil end)
+
+        assert.is_false(cb_success)
+        assert.is_truthy(cb_message:find("FakePkgStalled", 1, true))
+        assert.is_truthy(cb_message:find("0.05 seconds", 1, true))
+        assert.is_nil(dq.queue)
+
+        -- The transfer can't be cancelled, so a late finish must be ignored
+        raiseEvent("sysDownloadDone", target, 1024, {})
+        assert.is_false(installed_pkg)
+      end)
+
+      it("should time each download separately", function()
+        local cb_success
+        local installed_names = {}
+
+        use_real_install("local fine = true")
+
+        finally(function()
+          deleteAllNamedEventHandlers("glu_test_timeout")
+          for _, name in ipairs(installed_names) do uninstallPackage(name) end
+        end)
+        registerNamedEventHandler("glu_test_timeout", "note", "sysInstall", function(_, name)
+          table.insert(installed_names, name)
+        end)
+
+        -- The queue waits a second between packages, so a timeout shared
+        -- across the whole queue would run out before the second one
+        local dq = g.dependency_queue.new_dependency_queue(
+          {
+            {name = "FakePkgTimedA", url = "https://example.com/a.xml"},
+            {name = "FakePkgTimedB", url = "https://example.com/b.xml"},
+          },
+          function(success) cb_success = success end,
+          0.5
+        )
+
+        dq.start()
+        pump_until(function() return cb_success ~= nil end)
+
+        assert.is_true(cb_success)
+        assert.are.equal(2, #installed_names)
+      end)
+
+      it("should name the package that stalled when it isn't the first", function()
+        local cb_success, cb_message
+        local installed_name
+
+        use_real_install("local fine = true")
+
+        finally(function()
+          deleteAllNamedEventHandlers("glu_test_timeout")
+          if installed_name then uninstallPackage(installed_name) end
+        end)
+        registerNamedEventHandler("glu_test_timeout", "note", "sysInstall", function(_, name)
+          installed_name = name
+        end)
+
+        local real_install_download = _G.downloadFile
+        local downloads = 0
+        _G.downloadFile = function(path, url)
+          downloads = downloads + 1
+          if downloads == 1 then return real_install_download(path, url) end
+          return true, url
+        end
+
+        local dq = g.dependency_queue.new_dependency_queue(
+          {
+            {name = "FakePkgFirstOk", url = "https://example.com/first.xml"},
+            {name = "FakePkgSecondStalls", url = "https://example.com/second.xml"},
+          },
+          function(success, message)
+            cb_success = success
+            cb_message = message
+          end,
+          0.2
+        )
+
+        dq.start()
+        pump_until(function() return cb_success ~= nil end)
+
+        assert.is_false(cb_success)
+        assert.is_truthy(cb_message:find("FakePkgSecondStalls", 1, true))
+      end)
+
+      it("should not set a timer when no timeout is given", function()
+        local dq = g.dependency_queue.new_dependency_queue(
+          {{name = "FakePkgNoTimeout", url = "https://example.com/none.mpackage"}},
+          function() end
+        )
+
+        dq.start()
+
+        assert.is_nil(dq.current.timer)
+        dq.clean_up()
+      end)
+
+      it("should reject a timeout tempTimer wouldn't accept", function()
+        for _, bad in ipairs({ 0, -1, 86400, "soon" }) do
+          assert.has_error(function()
+            g.dependency_queue.new_dependency_queue(
+              {{name = "FakePkgBadTimeout", url = "https://example.com/bad.mpackage"}},
+              function() end,
+              bad
+            )
+          end)
+        end
+      end)
+    end)
+
+    describe("queues running side by side", function()
+      it("should give each call its own object and packages", function()
+        local a = g.dependency_queue.new_dependency_queue(
+          {{name = "FakePkgSideA", url = "https://example.com/a.mpackage"}},
+          function() end
+        )
+        local b = g.dependency_queue.new_dependency_queue(
+          {{name = "FakePkgSideB", url = "https://example.com/b.mpackage"}},
+          function() end
+        )
+
+        assert.is_false(rawequal(a, b))
+        assert.are.equal("FakePkgSideA", a.packages[1].name)
+        assert.are.equal("FakePkgSideB", b.packages[1].name)
+
+        a.clean_up()
+        assert.is_not_nil(b.queue)
+        b.clean_up()
+      end)
+
+      it("should finish each queue through its own callback", function()
+        local a_success, b_success
+        local installs = 0
+        _G.installPackage = function() installs = installs + 1; return true end
+
+        local a = g.dependency_queue.new_dependency_queue(
+          {{name = "FakePkgRunA", url = "https://example.com/a.mpackage"}},
+          function(success) a_success = success end
+        )
+        local b = g.dependency_queue.new_dependency_queue(
+          {{name = "FakePkgRunB", url = "https://example.com/b.mpackage"}},
+          function(success) b_success = success end
+        )
+
+        a.start()
+        b.start()
+
+        raiseEvent("sysDownloadDone", a.current.target, 1024, {})
+        assert.are.equal(1, installs)
+
+        raiseEvent("sysInstallPackage", "FakePkgRunA", a.current.target)
+        assert.is_true(a_success)
+        assert.is_nil(b_success)
+        assert.is_not_nil(b.queue)
+
+        raiseEvent("sysDownloadDone", b.current.target, 1024, {})
+        raiseEvent("sysInstallPackage", "FakePkgRunB", b.current.target)
+        assert.is_true(b_success)
+      end)
     end)
 
     it("should clean up event handlers after download error", function()
@@ -615,7 +1079,7 @@ describe("dependency_queue module", function()
 
       dq.start()
       raiseEvent("sysDownloadError", "404 not found", dq.current.target,
-        "https://example.com/errclean")
+        "https://example.com/errclean", {}, "")
 
       assert.is_nil(dq.handler_name)
       assert.is_nil(dq.queue)

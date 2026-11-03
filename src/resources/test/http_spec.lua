@@ -14,36 +14,40 @@ describe("http module", function()
     real_deleteHTTP = _G.deleteHTTP
     real_customHTTP = _G.customHTTP
 
-    -- Mock HTTP functions to capture calls and immediately fire done event
+    -- Mock HTTP functions with Mudlet's signatures. Each fires its done event from a timer.
     _G.getHTTP = function(url, headers)
-      -- Fire the done event synchronously
       tempTimer(0, function()
         raiseEvent("sysGetHttpDone", url, "response data", {})
       end)
+      return true, url
     end
 
     _G.postHTTP = function(data, url, headers)
       tempTimer(0, function()
         raiseEvent("sysPostHttpDone", url, "post response", {})
       end)
+      return true, url
     end
 
     _G.putHTTP = function(data, url, headers)
       tempTimer(0, function()
         raiseEvent("sysPutHttpDone", url, "put response", {})
       end)
+      return true, url
     end
 
     _G.deleteHTTP = function(url, headers)
       tempTimer(0, function()
         raiseEvent("sysDeleteHttpDone", url, "delete response", {})
       end)
+      return true, url
     end
 
     _G.customHTTP = function(method, data, url, headers)
       tempTimer(0, function()
         raiseEvent("sysCustomHttpDone", url, "custom response", method, {})
       end)
+      return true, url
     end
   end)
 
@@ -260,6 +264,7 @@ describe("http module", function()
       -- Override getHTTP to capture the URL and do nothing
       _G.getHTTP = function(url, headers)
         captured_url = url
+        return true, url
       end
 
       local request = g.http.get({

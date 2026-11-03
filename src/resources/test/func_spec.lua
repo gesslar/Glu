@@ -40,6 +40,15 @@ describe("func module", function()
       assert.are.equal(1, id)
     end)
 
+    it("should return nil and the reason when the timer can't be created", function()
+      _G.tempTimer = function() return -1, "unable to compile" end
+
+      local id, err = g.func.delay(function() end, 5)
+
+      assert.is_nil(id)
+      assert.are.equal("unable to compile", err)
+    end)
+
     it("should schedule with the provided delay", function()
       g.func.delay(function() end, 7)
       assert.are.equal(7, timer_callbacks[1].delay)
