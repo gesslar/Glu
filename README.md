@@ -14,6 +14,7 @@ your Glu instance as `glu.<name>`.
 | `colour` | Interpolate and convert RGB colours — fades, gradients, colour maths. |
 | `conditions` | Assertion-style condition checks that return `ok, message` instead of throwing. |
 | `date` | Turn seconds into human-readable durations and back again. |
+| `dependency_install` | The install object `dependency_queue` builds for you. Rarely used directly. |
 | `dependency_queue` | Download and install any Mudlet packages your package depends on. |
 | `fd` | File and directory handling — paths, reads, writes, directory creation. |
 | `func` | Function helpers — delayed calls, repeaters, and wrapping. |

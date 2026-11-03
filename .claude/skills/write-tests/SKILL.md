@@ -54,7 +54,7 @@ end)
 
 ## Testing async/event-driven code
 
-Mudlet's event loop doesn't yield to busted, so async code must be made synchronous via mocking. This pattern (used by Mudlet's own test suite) works for testing code that relies on `tempTimer`, `installPackage`, `raiseEvent`, and event handlers.
+Timers and events don't run while a spec is executing unless the spec lets them. Either wait for real with `pumpEvents(ms)` or `waitForEvent(name, ms)`, which is how Mudlet's own specs do it, or make the code synchronous by mocking. The mocking pattern below works for testing code that relies on `tempTimer`, `installPackage`, `raiseEvent`, and event handlers.
 
 **Mock `tempTimer`** to execute callbacks immediately:
 
@@ -68,6 +68,7 @@ before_each(function()
     elseif type(code) == "string" then
       loadstring(code)()
     end
+    return 1
   end
 end)
 after_each(function()
@@ -75,11 +76,11 @@ after_each(function()
 end)
 ```
 
-**Mock `installPackage`** (or similar async triggers) to do nothing, then use `raiseEvent` to synchronously fire the event the code is waiting for:
+**Mock `installPackage`** (or similar async triggers) to return success without installing, then use `raiseEvent` to synchronously fire the event the code is waiting for:
 
 ```lua
 before_each(function()
-  _G.installPackage = function() end
+  _G.installPackage = function() return true end
 end)
 
 it("should handle install", function()
@@ -114,4 +115,4 @@ npm test                                          # all specs
 1. Read the module source in `src/scripts/<module>.lua`
 2. Identify public functions defined on `self` inside `setup`
 3. Write tests covering: normal inputs, edge cases, error conditions
-4. Run `./test/run-tests.sh` to verify
+4. Run `npm test` to verify

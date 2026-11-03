@@ -141,7 +141,7 @@ describe("timer module", function()
     end)
 
     it("should return false when tempTimer fails", function()
-      _G.tempTimer = function() return nil end
+      _G.tempTimer = function() return -1, "unable to compile" end
 
       local ok, err = g.timer.multi("test", {
         {delay = 1, func = function() end},
