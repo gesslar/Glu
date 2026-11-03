@@ -18,14 +18,15 @@ local TimerClass = Glu.glass.register({
       local ok, result = pcall(def.func, def.args)
 
       if not ok then
-        return false, "error in multi timer with name " .. name .. ": " .. result
+        ___.timer.kill_multi(name)
+        return false, "error in multi timer with name " .. name .. ": " .. tostring(result)
       end
 
       table.remove(defs, 1)
       if #defs > 0 then
-        local result2 = ___.timer.multi(name, defs)
+        local result2, err = ___.timer.multi(name, defs)
         if not result2 then
-          return false, "error in multi timer with name " .. name .. ": " .. result2
+          return false, "error in multi timer with name " .. name .. ": " .. err
         end
       else
         ___.timer.kill_multi(name)
@@ -77,8 +78,11 @@ local TimerClass = Glu.glass.register({
       -- Record the initial information
       self.multi_timers[name] = { def = def }
 
+      -- Nothing is waiting on this callback's result, so raising is the only
+      -- way a failure gets seen.
       local timer_id = tempTimer(def[1].delay, function()
-        perform_multi_timer_function(name)
+        local ok, err = perform_multi_timer_function(name)
+        if not ok then error(err, 0) end
       end)
 
       if timer_id == -1 then
