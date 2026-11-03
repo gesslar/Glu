@@ -149,6 +149,38 @@ describe("timer module", function()
       assert.is_false(ok)
       assert.is_truthy(err)
     end)
+
+    it("should raise the reason and clean up when a later timer can't be created", function()
+      g.timer.multi("test", {
+        {delay = 1, func = function() end},
+        {delay = 1, func = function() end},
+      })
+
+      _G.tempTimer = function() return -1, "unable to compile" end
+
+      local ok, err = pcall(fire_timer, 1)
+
+      assert.is_false(ok)
+      assert.is_truthy(err:find("error creating multi timer with name test", 1, true))
+      assert.is_nil(g.timer.multi_timers["test"])
+    end)
+
+    it("should raise the reason and clean up when a step fails", function()
+      local later_ran = false
+
+      g.timer.multi("test", {
+        {delay = 1, func = function() error("step failed", 0) end},
+        {delay = 1, func = function() later_ran = true end},
+      })
+
+      local ok, err = pcall(fire_timer, 1)
+
+      assert.is_false(ok)
+      assert.is_truthy(err:find("step failed", 1, true))
+      assert.is_nil(g.timer.multi_timers["test"])
+      assert.is_nil(timer_callbacks[2])
+      assert.is_false(later_ran)
+    end)
   end)
 
   describe("kill_multi", function()
