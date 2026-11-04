@@ -326,6 +326,10 @@ if not _G["Glu"] then
       function(_, p)
         if p == instance.package_name then
           deleteNamedEventHandler("glu", handler_name)
+          -- Have to come first: their handlers outlive us otherwise, and the
+          -- validators they call need the instance.
+          instance.dependency_queue.clean_up_all()
+          instance.http.delete_all_requests()
           instance = nil
         end
       end

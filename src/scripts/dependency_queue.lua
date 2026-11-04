@@ -5,6 +5,19 @@ local DependencyQueueClass = Glu.glass.register({
   call = "new_dependency_queue",
   dependencies = { "queue", "table", },
   setup = function(___, self)
+    -- Every install with handlers registered, added and removed by the install
+    -- itself. Each Glu instance has its own, so a package only reaches its own.
+    self.installs = {}
+
+    --- Ends every queue still running on this Glu instance without invoking
+    --- their callbacks. Used when the package is uninstalled, as a callback may
+    --- touch state that has already been wiped.
+    function self.clean_up_all()
+      for install in pairs(self.installs) do
+        install.clean_up()
+      end
+    end
+
     --- Builds a queue that installs any of the given Mudlet packages that are not already installed.
     --- Filters out already-installed packages, downloads each remaining package into its own
     --- temporary directory, installs it from there, and invokes the callback with success and a

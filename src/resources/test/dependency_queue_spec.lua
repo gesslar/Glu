@@ -1086,6 +1086,204 @@ describe("dependency_queue module", function()
     end)
   end)
 
+  describe("when the package is uninstalled", function()
+    -- sysUninstall kills the instance it names, so nothing here can use the shared one.
+    local package_name = "__glu_test_dq_uninstall__"
+    local other_package_name = "__glu_test_dq_uninstall_other__"
+    local instance
+    local cb_calls
+    local real_tempTimer
+    local real_downloadFile
+    local real_installPackage
+
+    local function count_handlers(handler_name)
+      local count = 0
+      local registered = getNamedEventHandlers("glu")
+      for _, name in ipairs({ handler_name, handler_name .. "_download_done", handler_name .. "_download_error" }) do
+        if table.index_of(registered, name) then count = count + 1 end
+      end
+      return count
+    end
+
+    local function new_queue(glu, timeout, packages)
+      return glu.dependency_queue.new_dependency_queue(
+        packages or {{name = "FakePkgUninstall", url = "https://example.com/uninstall.mpackage"}},
+        function() cb_calls = cb_calls + 1 end,
+        timeout
+      )
+    end
+
+    before_each(function()
+      real_tempTimer = _G.tempTimer
+      real_downloadFile = _G.downloadFile
+      real_installPackage = _G.installPackage
+
+      _G.installPackage = function() return true end
+      _G.downloadFile = function(path, url)
+        local file = assert(io.open(path, "w"))
+        file:close()
+        return true, url
+      end
+
+      cb_calls = 0
+      instance = Glu(package_name)
+    end)
+
+    after_each(function()
+      _G.tempTimer = real_tempTimer
+      _G.downloadFile = real_downloadFile
+      _G.installPackage = real_installPackage
+
+      raiseEvent("sysUninstall", package_name)
+      raiseEvent("sysUninstall", other_package_name)
+    end)
+
+    it("should remove the handlers of a running queue", function()
+      local dq = new_queue(instance)
+      local handler_name = dq.handler_name
+      dq.start()
+      assert.are.equal(3, count_handlers(handler_name))
+
+      raiseEvent("sysUninstall", package_name)
+
+      assert.are.equal(0, count_handlers(handler_name))
+    end)
+
+    it("should remove the handlers of a queue that was never started", function()
+      local handler_name = new_queue(instance).handler_name
+
+      raiseEvent("sysUninstall", package_name)
+
+      assert.are.equal(0, count_handlers(handler_name))
+    end)
+
+    it("should end every queue the instance is running", function()
+      local a = new_queue(instance)
+      local b = new_queue(instance)
+      a.start()
+      b.start()
+
+      raiseEvent("sysUninstall", package_name)
+
+      assert.is_nil(a.queue)
+      assert.is_nil(b.queue)
+    end)
+
+    it("should remove the temporary download", function()
+      local dq = new_queue(instance)
+      dq.start()
+      local target = dq.current.target
+      assert.is_truthy(lfs.attributes(target))
+
+      raiseEvent("sysUninstall", package_name)
+
+      assert.is_nil(lfs.attributes(target))
+    end)
+
+    it("should cancel the download timeout", function()
+      local killed
+      local real_killTimer = _G.killTimer
+      finally(function() _G.killTimer = real_killTimer end)
+      _G.killTimer = function(id)
+        killed = id
+        return real_killTimer(id)
+      end
+
+      local dq = new_queue(instance, 60)
+      dq.start()
+      local timer = dq.current.timer
+
+      raiseEvent("sysUninstall", package_name)
+
+      assert.is_truthy(timer)
+      assert.are.equal(timer, killed)
+    end)
+
+    it("should not call the callback", function()
+      new_queue(instance).start()
+
+      raiseEvent("sysUninstall", package_name)
+
+      assert.are.equal(0, cb_calls)
+    end)
+
+    it("should drop the step waiting to run after an install", function()
+      local downloads = 0
+      local waiting
+      local download = _G.downloadFile
+      _G.downloadFile = function(path, url)
+        downloads = downloads + 1
+        return download(path, url)
+      end
+      _G.tempTimer = function(time, code)
+        if time == 1 then waiting = code end
+        return 1
+      end
+
+      local dq = new_queue(instance, nil, {
+        {name = "FakePkgInstalled", url = "https://example.com/installed.mpackage"},
+        {name = "FakePkgNext", url = "https://example.com/next.mpackage"},
+      })
+      dq.start()
+      raiseEvent("sysDownloadDone", dq.current.target, 1024, {})
+      raiseEvent("sysInstallPackage", "FakePkgInstalled", dq.current.target)
+      assert.are.equal("function", type(waiting))
+
+      raiseEvent("sysUninstall", package_name)
+
+      assert.has_no.errors(waiting)
+      assert.are.equal(1, downloads)
+      assert.are.equal(0, cb_calls)
+    end)
+
+    it("should let the package's own uninstall handler call clean_up", function()
+      local dq = new_queue(instance)
+      dq.start()
+
+      raiseEvent("sysUninstall", package_name)
+
+      assert.has_no.errors(dq.clean_up)
+    end)
+
+    it("should leave the queues of another package's instance running", function()
+      local other = Glu(other_package_name)
+      local dq = new_queue(instance)
+      local other_dq = new_queue(other)
+      local other_handler_name = other_dq.handler_name
+      dq.start()
+      other_dq.start()
+
+      raiseEvent("sysUninstall", package_name)
+
+      assert.is_not_nil(other_dq.queue)
+      assert.are.equal(3, count_handlers(other_handler_name))
+
+      -- The survivor still works, and still recognises its own download.
+      raiseEvent("sysDownloadDone", other_dq.current.target, 1024, {})
+      raiseEvent("sysInstallPackage", "FakePkgUninstall", other_dq.current.target)
+      assert.is_nil(other_dq.current)
+    end)
+
+    it("should leave its queues running when another package is uninstalled", function()
+      local dq = new_queue(instance)
+      local handler_name = dq.handler_name
+      dq.start()
+
+      raiseEvent("sysUninstall", other_package_name)
+
+      assert.is_not_nil(dq.queue)
+      assert.are.equal(3, count_handlers(handler_name))
+    end)
+
+    it("should stop tracking a queue once it ends", function()
+      local dq = new_queue(instance)
+
+      dq.clean_up()
+
+      assert.is_nil(instance.dependency_queue.installs[dq])
+    end)
+  end)
+
   describe("start", function()
     it("should return nil after clean_up", function()
       local result = g.dependency_queue.new_dependency_queue(

@@ -469,4 +469,76 @@ describe("http_request module", function()
       assert.is_false(g.fd.file_exists(err_path))
     end)
   end)
+
+  -- ========================================================================
+  -- package uninstall
+  -- ========================================================================
+
+  describe("when the package is uninstalled", function()
+    -- sysUninstall kills the instance it names, so nothing here can use the shared one.
+    local package_name = "__glu_test_http_uninstall__"
+    local other_package_name = "__glu_test_http_uninstall_other__"
+    local instance
+
+    before_each(function()
+      instance = Glu(package_name)
+    end)
+
+    after_each(function()
+      raiseEvent("sysUninstall", package_name)
+      raiseEvent("sysUninstall", other_package_name)
+    end)
+
+    it("removes the handlers of every request in flight", function()
+      local get = instance.http.get({url = "http://example.com/x"}, function() end)
+      local post = instance.http.post({url = "http://example.com/x"}, function() end)
+
+      raiseEvent("sysUninstall", package_name)
+
+      assert.are.same({}, getNamedEventHandlers(get.id))
+      assert.are.same({}, getNamedEventHandlers(post.id))
+    end)
+
+    it("does not call the callback when a response arrives later", function()
+      local calls = 0
+      instance.http.get({url = "http://example.com/x"}, function() calls = calls + 1 end)
+
+      raiseEvent("sysUninstall", package_name)
+      raiseEvent("sysGetHttpDone", "http://example.com/x", "body", {})
+
+      assert.are.equal(0, calls)
+    end)
+
+    it("does not call the callback on uninstall", function()
+      local calls = 0
+      instance.http.get({url = "http://example.com/x"}, function() calls = calls + 1 end)
+
+      raiseEvent("sysUninstall", package_name)
+
+      assert.are.equal(0, calls)
+    end)
+
+    it("leaves the requests of another package's instance in flight", function()
+      local other = Glu(other_package_name)
+      local got
+      instance.http.get({url = "http://example.com/x"}, function() end)
+      local other_request = other.http.get({url = "http://example.com/y"}, function(resp) got = resp end)
+
+      raiseEvent("sysUninstall", package_name)
+
+      assert.are.equal(other_request, other.http.find_request(other_request.id))
+
+      raiseEvent("sysGetHttpDone", "http://example.com/y", "body", {})
+      assert.are.equal("body", got.result.data)
+    end)
+
+    it("leaves its requests in flight when another package is uninstalled", function()
+      local request = instance.http.get({url = "http://example.com/x"}, function() end)
+
+      raiseEvent("sysUninstall", other_package_name)
+
+      assert.are.equal(request, instance.http.find_request(request.id))
+      assert.is_false(table.is_empty(getNamedEventHandlers(request.id)))
+    end)
+  end)
 end)
