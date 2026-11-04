@@ -176,6 +176,18 @@ local HttpClass = Glu.glass.register({
       end
     end
 
+    --- Removes every tracked HTTP request on this Glu instance, along with
+    --- their event handlers. Their callbacks will not be called. Used when the
+    --- package is uninstalled, as a callback may touch state that has already
+    --- been wiped.
+    ---
+    ---@return nil result Nothing.
+    function self.delete_all_requests()
+      while requests[1] do
+        self.delete_request(requests[1].id)
+      end
+    end
+
     --- Looks up a tracked HTTP request by its id.
     ---
     ---@param id string The id of the request to find.

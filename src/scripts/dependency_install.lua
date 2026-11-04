@@ -100,6 +100,9 @@ local DependencyInstallClass = Glu.glass.register({
           self.discard_temp()
           ___.table.shift(self.packages)
           tempTimer(1, function()
+            -- Ended while this was waiting, such as by the package being uninstalled.
+            if not self.queue then return end
+
             self.queue.execute()
             if #self.packages == 0 then
               -- Cleaned up first, so a callback that throws can't leave handlers behind.
@@ -149,6 +152,8 @@ local DependencyInstallClass = Glu.glass.register({
           self.fail("Failed to download dependency `<b>" .. name .. "</b>`: " .. reason .. "\nCleaning up.\n")
         end
       )
+
+      self.container.installs[self] = true
 
       return self
     end
@@ -201,8 +206,11 @@ local DependencyInstallClass = Glu.glass.register({
     --- Removes the registered event handlers and tears down the queue.
     --- Deletes the named sysInstallPackage, sysDownloadDone and sysDownloadError
     --- handlers, discards any temporary download, and clears the handler name
-    --- and queue.
+    --- and queue. Safe to call more than once, so a package's own uninstall
+    --- handler can call it after Glu has already ended the queue.
     function self.clean_up()
+      if not self.queue then return end
+
       self.discard_temp()
 
       deleteNamedEventHandler("glu", self.handler_name)
@@ -211,6 +219,7 @@ local DependencyInstallClass = Glu.glass.register({
       self.handler_name = nil
       self.container.delete(self.queue.id)
       self.queue = nil
+      self.container.installs[self] = nil
     end
 
     --- Begins executing the queue.
